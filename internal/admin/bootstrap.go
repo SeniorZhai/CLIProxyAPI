@@ -11,9 +11,10 @@ import (
 )
 
 type BootstrapOptions struct {
-	PublicURL string
-	Username  string
-	Password  string
+	PublicURL      string
+	Username       string
+	Password       string
+	TrustedProxies []string
 }
 
 func Bootstrap(configPath string, options BootstrapOptions) (string, error) {
@@ -35,13 +36,16 @@ func Bootstrap(configPath string, options BootstrapOptions) (string, error) {
 		}
 		data, errYAML := yaml.Marshal(map[string]any{
 			"config-version": 8,
-			"server":         map[string]any{"host": "", "port": 8317},
+			"server":         map[string]any{"host": "", "port": 8317, "trusted-proxies": options.TrustedProxies},
 			"management":     map[string]any{"admin": adminCfg, "allow-remote": true, "disable-control-panel": true},
 			"access":         map[string]any{"api-keys": []string{}},
 			"oauth":          map[string]any{"auth-dir": filepath.Join(dir, "auths")},
 		})
 		if errYAML != nil {
 			return "", fmt.Errorf("encode initial configuration: %w", errYAML)
+		}
+		if _, errValidate := config.ParseConfigBytes(data); errValidate != nil {
+			return "", fmt.Errorf("validate initial configuration: %w", errValidate)
 		}
 		if errWrite := writePrivateFile(configPath, data, false); errWrite != nil {
 			return "", errWrite

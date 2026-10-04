@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"testing"
@@ -21,7 +22,8 @@ const testPassword = "test-admin-password"
 
 func TestBootstrapPreservesConfigurationAndAccount(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "data", "config.yaml")
-	credentials, err := Bootstrap(path, BootstrapOptions{PublicURL: "https://proxy.example.com"})
+	proxies := []string{"172.30.83.1", "2001:db8::1"}
+	credentials, err := Bootstrap(path, BootstrapOptions{PublicURL: "https://proxy.example.com", TrustedProxies: proxies})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,6 +33,9 @@ func TestBootstrapPreservesConfigurationAndAccount(t *testing.T) {
 	}
 	if !cfg.RemoteManagement.Admin.Enabled || len(cfg.APIKeys) != 0 || !cfg.RemoteManagement.AllowRemote || cfg.AuthDir != filepath.Join(filepath.Dir(path), "auths") {
 		t.Fatal("unexpected bootstrap configuration")
+	}
+	if !reflect.DeepEqual(cfg.TrustedProxies, proxies) {
+		t.Fatalf("trusted proxies = %v, want %v", cfg.TrustedProxies, proxies)
 	}
 	data, err := os.ReadFile(credentials)
 	if err != nil {
@@ -54,7 +59,7 @@ func TestBootstrapPreservesConfigurationAndAccount(t *testing.T) {
 		}
 	}
 	before, _ := os.ReadFile(path)
-	result, err := Bootstrap(path, BootstrapOptions{PublicURL: "https://changed.example.com", Username: "other", Password: "different-password"})
+	result, err := Bootstrap(path, BootstrapOptions{PublicURL: "https://changed.example.com", Username: "other", Password: "different-password", TrustedProxies: []string{"192.0.2.1"}})
 	if err != nil || result != "" {
 		t.Fatalf("repeat bootstrap: %v", err)
 	}
@@ -78,6 +83,20 @@ func TestBootstrapPreservesConfigurationAndAccount(t *testing.T) {
 	}
 	if _, errInit := Initialize(cfg.RemoteManagement.Admin, path, "", ""); errInit == nil {
 		t.Fatal("corrupt state must not silently create a new account")
+	}
+}
+
+func TestBootstrapRejectsInvalidTrustedProxiesBeforeWriting(t *testing.T) {
+	for _, proxies := range [][]string{{"proxy.example.com"}, {"172.30.83.1", ""}, {"172.30.83.0/99"}} {
+		t.Run(strings.Join(proxies, ","), func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "config.yaml")
+			if _, err := Bootstrap(path, BootstrapOptions{TrustedProxies: proxies}); err == nil {
+				t.Fatal("invalid trusted proxy was accepted")
+			}
+			if _, err := os.Stat(path); !os.IsNotExist(err) {
+				t.Fatal("invalid bootstrap left a configuration file")
+			}
+		})
 	}
 }
 

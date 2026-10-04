@@ -1,11 +1,13 @@
 """Exercise a fresh, disposable Compose deployment. Never use with production data."""
 
 import concurrent.futures
+import http.client
 import http.cookiejar
 import json
 import pathlib
 import stat
 import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -52,6 +54,46 @@ def ready():
     raise AssertionError("service did not become ready")
 
 
+def verify_proxy_login(password):
+    with tempfile.TemporaryDirectory(prefix="cpa-login-proxy-") as directory:
+        config = pathlib.Path(directory) / "Caddyfile"
+        config.write_text("http://127.0.0.1:8319 {\n reverse_proxy 127.0.0.1:8318\n}\n")
+        container = subprocess.check_output([
+            "docker", "run", "--detach", "--rm", "--network", "host",
+            "--volume", f"{config}:/etc/caddy/Caddyfile:ro", "caddy:2-alpine",
+        ], text=True).strip()
+
+        def attempt(source, password_value, forwarded="203.0.113.99"):
+            connection = http.client.HTTPConnection("127.0.0.1", 8319, source_address=(source, 0))
+            try:
+                body = json.dumps({"username": "admin", "password": password_value})
+                connection.request("POST", API + "/auth/login", body, {
+                    "Origin": BASE, "Content-Type": "application/json",
+                    "X-Forwarded-For": forwarded, "X-Real-IP": forwarded,
+                })
+                response = connection.getresponse()
+                response.read()
+                return response.status
+            finally:
+                connection.close()
+
+        try:
+            for _ in range(60):
+                try:
+                    urllib.request.urlopen("http://127.0.0.1:8319/healthz").close()
+                    break
+                except (urllib.error.URLError, ConnectionError):
+                    time.sleep(1)
+            else:
+                raise AssertionError("test reverse proxy did not become ready")
+            for i in range(5):
+                assert attempt("127.0.0.2", "wrong-password", f"198.51.100.{i + 1}") == 401
+            assert attempt("127.0.0.2", password, "127.0.0.3") == 429, "forged proxy headers bypassed throttling"
+            assert attempt("127.0.0.3", password, "127.0.0.2") == 200, "another client was locked out"
+        finally:
+            subprocess.run(["docker", "rm", "--force", container], check=True, stdout=subprocess.DEVNULL)
+
+
 ready()
 credentials = pathlib.Path("data/admin/initial-credentials.txt")
 assert stat.S_IMODE(credentials.stat().st_mode) == 0o600
@@ -61,6 +103,7 @@ assert values["username"] == "admin" and len(password) >= 24
 assert "CLIProxyAPI" in request("/admin/")
 request("/v1/models", want=401)
 csrf = login(password)
+verify_proxy_login(password)
 assert not credentials.exists(), "initial credentials were not removed on login"
 request("/v1/models", opener=browser, want=401)
 cookie = next(iter(jar))
@@ -100,4 +143,4 @@ request("/v1/models", want=401)
 compose("restart", "cpa")
 ready()
 request("/v1/models", headers=first_header, want=401)
-print("PASS: initialization, login, CSRF, protocol keys, concurrency, logout, password change, restart, revocation")
+print("PASS: initialization, proxy login isolation, forged headers, CSRF, protocol keys, concurrency, logout, password change, restart, revocation")

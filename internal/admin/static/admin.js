@@ -1,6 +1,6 @@
 const API = '/v8/management';
 const $ = (id) => document.getElementById(id);
-const state = { session: null, accounts: [], keys: [], client: 'codex', oauth: null };
+const state = { session: null, accounts: [], keys: [], models: [], preferredModel: '', customModel: false, client: 'codex', oauth: null };
 const providers = [
   ['codex', 'ChatGPT Codex', 'ChatGPT 账号授权'],
   ['claude', 'Claude Code', 'Claude 账号授权'],
@@ -107,6 +107,9 @@ function showLogin() {
   state.session = null;
   state.accounts = [];
   state.keys = [];
+  state.models = [];
+  state.preferredModel = '';
+  state.customModel = false;
   accountRead++; keyRead++; modelRead++;
   for (const dialog of document.querySelectorAll('dialog[open]')) dialog.close();
   $('app-view').hidden = true;
@@ -115,6 +118,9 @@ function showLogin() {
   $('key-list').replaceChildren();
   $('client-snippet').textContent = '';
   $('connect-key').replaceChildren();
+  $('connect-model').value = '';
+  $('model-options').replaceChildren();
+  $('model-hint').textContent = '';
   $('callback-url').value = '';
   $('password-form').reset();
   $('password').value = '';
@@ -145,6 +151,10 @@ async function loadAccounts() {
   state.accounts = data.files || [];
   $('account-count').textContent = String(state.accounts.length);
   renderAccounts();
+}
+
+async function refreshAccounts() {
+  await Promise.all([loadAccounts(), loadModels()]);
 }
 
 function renderAccounts() {
@@ -180,16 +190,16 @@ function renderAccounts() {
       }),
       actionButton('刷新凭据', async () => {
         await request(`${API}/credentials/refresh`, { method: 'POST', body: { name: row.name, auth_index: row.auth_index || '' } });
-        await loadAccounts(); notify('凭据已刷新');
+        await refreshAccounts(); notify('凭据已刷新');
       }),
       actionButton(paused ? '启用' : '暂停', async () => {
         await request(`${API}/credentials/status`, { method: 'PATCH', body: { name: row.name, auth_index: row.auth_index || '', disabled: !paused } });
-        await loadAccounts();
+        await refreshAccounts();
       }),
       actionButton('删除', async () => {
         if (!window.confirm(`删除账号 ${row.email || row.name}？使用该账号的请求将无法继续路由到它。`)) return;
         await request(`${API}/credentials?${new URLSearchParams({ name: row.name, auth_index: row.auth_index || '' })}`, { method: 'DELETE' });
-        await loadAccounts(); notify('账号已删除');
+        await refreshAccounts(); notify('账号已删除');
       }, 'text-button danger'),
     );
     container.append(element('div', 'provider-mark', providerName(name).slice(0, 1)), body, actions);
@@ -240,15 +250,22 @@ function selectedKey() { return state.keys.find((key) => key.id === $('connect-k
 async function loadModels() {
   const version = ++modelRead;
   const key = selectedKey();
+  state.models = [];
+  if (!state.customModel) $('connect-model').value = '';
   $('model-options').replaceChildren();
+  renderSnippet();
   if (!key) { $('model-hint').textContent = '生成设备 Key 后可以查询模型。'; return; }
   $('model-hint').textContent = '正在查询账号可用的模型…';
   try {
     const response = await request('/v1/models', { headers: { Authorization: `Bearer ${key}` } });
     if (version !== modelRead || !state.session) return;
     const models = response.data || [];
+    state.models = models.map((model) => model.id);
     for (const model of models) $('model-options').append(new Option(model.id, model.id));
-    if (!$('connect-model').value && models.length) $('connect-model').value = models[0].id;
+    if (!state.customModel) {
+      state.preferredModel = state.models.includes(state.preferredModel) ? state.preferredModel : state.models[0] || '';
+      $('connect-model').value = state.preferredModel;
+    }
     $('model-hint').textContent = models.length ? `已发现 ${models.length} 个模型，也可以手动输入模型 ID。` : '尚未发现模型，请先连接并启用上游账号。';
   } catch (error) {
     if (version !== modelRead) return;
@@ -350,7 +367,7 @@ async function pollOAuth(flow) {
       $('callback-form').hidden = true;
       $('oauth-link-area').hidden = true;
       $('device-code-area').hidden = true;
-      await loadAccounts(); await loadModels();
+      await refreshAccounts();
       notify('账号已连接');
     } else if (result.status === 'error') {
       $('oauth-status').textContent = `授权未完成：${result.error || '请关闭窗口后重试。'}`;
@@ -392,7 +409,7 @@ for (const [id, name, detail] of providers) {
 
 $('add-account').addEventListener('click', () => $('provider-dialog').showModal());
 $('account-search').addEventListener('input', renderAccounts);
-$('reload-accounts').addEventListener('click', (event) => busy(event.currentTarget, loadAccounts));
+$('reload-accounts').addEventListener('click', (event) => busy(event.currentTarget, refreshAccounts));
 $('import-account').addEventListener('click', () => $('auth-file').click());
 $('auth-file').addEventListener('change', async () => {
   const files = Array.from($('auth-file').files || []);
@@ -404,7 +421,7 @@ $('auth-file').addEventListener('change', async () => {
       }
       if (files.length) notify(`已导入 ${files.length} 个凭据文件`);
     } finally {
-      await loadAccounts(); await loadModels();
+      await refreshAccounts();
     }
   });
   $('auth-file').value = '';
@@ -414,7 +431,12 @@ $('create-key').addEventListener('click', (event) => busy(event.currentTarget, a
   await loadKeys(); notify('已生成 Key，可复制到设备使用');
 }));
 $('connect-key').addEventListener('change', () => { renderSnippet(); loadModels(); });
-$('connect-model').addEventListener('input', renderSnippet);
+$('connect-model').addEventListener('input', () => {
+  const model = $('connect-model').value.trim();
+  state.preferredModel = model;
+  state.customModel = Boolean(model) && !state.models.includes(model);
+  renderSnippet();
+});
 $('copy-base').addEventListener('click', () => copy($('api-base').value));
 $('copy-snippet').addEventListener('click', () => copy($('client-snippet').textContent));
 $('copy-oauth-url').addEventListener('click', () => copy($('oauth-link').href));

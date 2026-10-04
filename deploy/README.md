@@ -7,7 +7,7 @@ Deploy one CLIProxyAPI instance, connect upstream accounts in the browser, and c
 Install Docker Engine with the Compose plugin, then:
 
 ```sh
-git clone --branch feat/self-hosted-admin https://github.com/SeniorZhai/CLIProxyAPI.git
+git clone --branch main https://github.com/SeniorZhai/CLIProxyAPI.git
 cd CLIProxyAPI
 cp deploy/.env.example deploy/.env
 # Edit deploy/.env: set CPA_PUBLIC_URL=https://proxy.example.com
@@ -17,6 +17,8 @@ cp deploy/.env.example deploy/.env
 The image is built from this checkout, including the embedded console. Compose binds `127.0.0.1:8318` by default, separate from sub2. Change `CPA_PORT` if that port is already in use. The internal service port remains `8317`. No OAuth callback ports need to be published.
 
 Point a separate domain at your server and add [Caddyfile.example](Caddyfile.example) to your existing Caddy configuration. Replace the domain and, if changed, the local port. Caddy handles HTTPS, WebSocket upgrades, and streaming responses. For an existing reverse proxy, forward the entire origin to the local port and preserve streaming and WebSocket upgrades. The example is a separate site definition and does not replace other services.
+
+Compose uses a dedicated bridge (`172.30.83.0/24`, gateway `172.30.83.1`). If it overlaps another network, set both `CPA_NETWORK_SUBNET` and `CPA_NETWORK_GATEWAY` in `.env` before installation. First initialization sets `server.trusted-proxies` to that single gateway, so login throttling distinguishes clients behind the host reverse proxy. Keep the published port bound to loopback. The public reverse proxy must overwrite client-supplied forwarded IP headers; the example uses [Caddy's default header handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#headers). Do not trust all addresses or the whole Docker subnet. For another proxy topology, configure only its actual immediate peer address in `server.trusted-proxies` and restart.
 
 Open `https://proxy.example.com/admin/`. Read the first login credentials on the server:
 
@@ -42,12 +44,16 @@ Administrator cookies are HttpOnly, scoped to `/v8/management`, and Secure for H
 
 `deploy/data/` contains the configuration (including device keys), upstream credentials, administrator hash, and logs. Back up the entire directory with restricted access. Keep it across container replacement. Use a single service replica for this file-based deployment.
 
+When upgrading an earlier self-hosted deployment that did not configure trusted proxies, first run `docker compose -f deploy/compose.yaml down` (without `-v`) to replace its old bridge network. Set `server.trusted-proxies` in `deploy/data/config.yaml` to `["172.30.83.1"]`, or your chosen `CPA_NETWORK_GATEWAY`, before running the upgrade commands below. Existing data stays in `deploy/data/`. Without this migration, all clients behind the proxy still share the same login throttle.
+
 ```sh
 git pull --ff-only
 ./deploy/install.sh
 ```
 
 The install script preserves `.env` and existing data. Initialization never regenerates a saved administrator or device key. After initial setup, change the public origin in `deploy/data/config.yaml` (`management.admin.public-url`) and restart the service; editing the bootstrap environment alone does not rewrite it.
+
+`CPA_TRUSTED_PROXIES` is a comma-separated bootstrap input and applies only when creating the configuration; it never overrides a saved configuration.
 
 If the administrator password is lost, reset it locally while the service is stopped:
 
@@ -63,4 +69,4 @@ The reset generates a new password and preserves device keys and upstream creden
 
 ## Verification
 
-Run `go test ./...` and `go build -o test-output ./cmd/server`. The `self-hosted` GitHub Actions workflow builds the Linux container and checks automatic initialization, authentication isolation, key creation, logout, restart persistence, and revocation using a disposable Compose data directory. Real provider subscriptions and live model calls require separately configured accounts.
+Run `go test ./...` and `go build -o test-output ./cmd/server`. The `self-hosted` GitHub Actions workflow builds the Linux container and checks automatic initialization, authentication isolation, key creation, logout, restart persistence, and revocation using a disposable Compose data directory. It also runs a Caddy reverse proxy to verify per-client login throttling and rejection of forged forwarded IP headers. Real provider subscriptions and live model calls require separately configured accounts.

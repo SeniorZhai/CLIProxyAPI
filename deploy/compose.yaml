@@ -13,6 +13,7 @@ services:
       CPA_PUBLIC_URL: ${CPA_PUBLIC_URL:?Set CPA_PUBLIC_URL in deploy/.env}
       CPA_ADMIN_USERNAME: ${CPA_ADMIN_USERNAME:-admin}
       CPA_ADMIN_PASSWORD: ${CPA_ADMIN_PASSWORD:-}
+      CPA_TRUSTED_PROXIES: ${CPA_NETWORK_GATEWAY:-172.30.83.1}
     ports:
       - "127.0.0.1:${CPA_PORT:-8318}:8317"
     volumes:
@@ -24,3 +25,10 @@ services:
       start_period: 20s
       retries: 6
     restart: unless-stopped
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${CPA_NETWORK_SUBNET:-172.30.83.0/24}
+          gateway: ${CPA_NETWORK_GATEWAY:-172.30.83.1}

@@ -358,8 +358,16 @@ func main() {
 		if bootstrapPath == "" {
 			bootstrapPath = filepath.Join(wd, "config.yaml")
 		}
+		var trustedProxies []string
+		if value := os.Getenv("CPA_TRUSTED_PROXIES"); value != "" {
+			trustedProxies = strings.Split(value, ",")
+			for i := range trustedProxies {
+				trustedProxies[i] = strings.TrimSpace(trustedProxies[i])
+			}
+		}
 		initialPath, errBootstrap := admin.Bootstrap(bootstrapPath, admin.BootstrapOptions{
 			PublicURL: os.Getenv("CPA_PUBLIC_URL"), Username: os.Getenv("CPA_ADMIN_USERNAME"), Password: os.Getenv("CPA_ADMIN_PASSWORD"),
+			TrustedProxies: trustedProxies,
 		})
 		if errBootstrap != nil {
 			log.WithError(errBootstrap).Error("failed to initialize self-hosted administrator")

@@ -113,6 +113,7 @@ async function browser(route = () => undefined, keys = [deviceKey]) {
   await flush();
   return {
     node: (id) => elements.get(id), requests, unexpected, timers,
+    accountAction: (label) => elements.get('account-list').children[0].children.at(-1).children.find((button) => button.textContent === label),
     provider: (name) => elements.get('provider-list').children.find((button) => button.textContent.startsWith(name)),
     client: (name) => buttons.find((button) => button.dataset.client === name),
     async tick(delay) {
@@ -303,6 +304,9 @@ test('an expired web session closes dialogs, clears device keys, and stops OAuth
   assert.equal(app.node('client-snippet').textContent, '');
   assert.equal(app.node('key-list').childElementCount, 0);
   assert.equal(app.node('connect-key').childElementCount, 0);
+  assert.equal(app.node('connect-model').value, '');
+  assert.equal(app.node('model-options').childElementCount, 0);
+  assert.equal(app.node('model-hint').textContent, '');
   assert.equal(app.requests.find(({ path }) => path.includes('/oauth/status?')).signal.aborted, true);
   assert.equal(app.timers.size, 0);
   assert.equal(app.requests.some(({ method }) => method === 'DELETE'), false);
@@ -387,4 +391,131 @@ test('selecting another device key updates authorization and preserves the selec
     assert.equal(request.headers.get('Authorization'), `Bearer ${otherKey.key}`);
     assert.equal(request.headers.has('X-CSRF-Token'), false);
   }
+});
+
+for (const [label, method, path, before, after] of [
+  ['删除', 'DELETE', `${API}/credentials?name=account.json&auth_index=account-1`, ['old-model'], []],
+  ['暂停', 'PATCH', `${API}/credentials/status`, ['old-model'], []],
+  ['启用', 'PATCH', `${API}/credentials/status`, [], ['enabled-model']],
+  ['刷新凭据', 'POST', `${API}/credentials/refresh`, ['old-model'], ['refreshed-model']],
+]) {
+  test(`${label} refreshes available models and reconciles the generated client configuration`, async () => {
+    let changed = false;
+    const app = await browser((request) => {
+      if (request.method === method && request.path === path) {
+        changed = true;
+        return { body: {} };
+      }
+      if (request.path === `${API}/credentials`) return { body: { files: changed && label === '删除' ? [] : [{
+        name: 'account.json', auth_index: 'account-1', provider: 'codex',
+        disabled: label === '启用' ? !changed : label === '暂停' && changed,
+      }] } };
+      if (request.path === '/v1/models') return { body: { data: (changed ? after : before).map((id) => ({ id })) } };
+    });
+    assert.equal(app.node('connect-model').value, before[0] || '');
+    await app.accountAction(label).click();
+    assert.equal(changed, true);
+    assert.equal(app.requests.filter(({ path }) => path === '/v1/models').length, 2);
+    assert.deepEqual(app.node('model-options').children.map((option) => option.value), after);
+    assert.equal(app.node('connect-model').value, after[0] || '');
+    assert.ok(app.node('client-snippet').textContent.includes(`model="${after[0] || '<MODEL_ID>'}"`));
+    assert.doesNotMatch(app.node('client-snippet').textContent, /old-model/);
+    assert.match(app.node('model-hint').textContent, after.length ? /已发现 1 个模型/ : /尚未发现模型/);
+    assert.deepEqual(app.unexpected, []);
+  });
+}
+
+test('manual account reload preserves a listed selection only while that model remains available', async () => {
+  let models = ['first-model', 'selected-model'];
+  const app = await browser(({ path }) => path === '/v1/models'
+    ? { body: { data: models.map((id) => ({ id })) } } : undefined);
+  app.node('connect-model').value = 'selected-model';
+  await app.node('connect-model').emit('input');
+  models = ['replacement-model', 'selected-model'];
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'selected-model');
+  models = ['replacement-model'];
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'replacement-model');
+  assert.doesNotMatch(app.node('client-snippet').textContent, /selected-model/);
+  assert.equal(app.requests.filter(({ path }) => path === '/v1/models').length, 3);
+});
+
+test('overlapping model reloads preserve the selected model and ignore an older response', async () => {
+  const otherKey = { id: 'device-2', key: 'cpa_other_device_key' };
+  const pending = [];
+  let loading = false;
+  const app = await browser(({ path }) => {
+    if (path !== '/v1/models') return;
+    if (loading) return new Promise((resolve) => pending.push(resolve));
+    return { body: { data: [{ id: 'first-model' }, { id: 'chosen-model' }] } };
+  }, [deviceKey, otherKey]);
+  app.node('connect-model').value = 'chosen-model';
+  await app.node('connect-model').emit('input');
+  loading = true;
+  const reloading = app.node('reload-accounts').click();
+  await flush();
+  assert.equal(app.node('connect-model').value, '');
+  assert.doesNotMatch(app.node('client-snippet').textContent, /chosen-model/);
+  app.node('connect-key').value = otherKey.id;
+  await app.node('connect-key').emit('change');
+  assert.equal(pending.length, 2);
+  pending[1]({ body: { data: [{ id: 'new-first-model' }, { id: 'chosen-model' }] } });
+  await flush();
+  assert.equal(app.node('connect-model').value, 'chosen-model');
+  pending[0]({ body: { data: [{ id: 'stale-model' }] } });
+  await reloading;
+  assert.equal(app.node('connect-model').value, 'chosen-model');
+  assert.deepEqual(app.node('model-options').children.map((option) => option.value), ['new-first-model', 'chosen-model']);
+  assert.match(app.node('client-snippet').textContent, /model="chosen-model"/);
+  assert.match(app.node('client-snippet').textContent, /cpa_other_device_key/);
+  assert.doesNotMatch(app.node('client-snippet').textContent, /stale-model|cpa_test_device_key/);
+});
+
+test('model reload failures clear automatic suggestions and recover on the next account reload', async () => {
+  let fail = false;
+  const app = await browser(({ path }) => path === '/v1/models' && fail
+    ? { status: 503, body: { error: 'model registry unavailable' } } : undefined);
+  fail = true;
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('model-options').childElementCount, 0);
+  assert.equal(app.node('connect-model').value, '');
+  assert.match(app.node('model-hint').textContent, /模型查询失败：model registry unavailable/);
+  assert.match(app.node('client-snippet').textContent, /model="<MODEL_ID>"/);
+  assert.equal(app.node('app-view').hidden, false);
+  fail = false;
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'example-model');
+  assert.match(app.node('model-hint').textContent, /已发现 1 个模型/);
+});
+
+test('an intentional custom model survives empty model lists and query failures', async () => {
+  let fail = false;
+  const app = await browser(({ path }) => path === '/v1/models'
+    ? fail ? { status: 503, body: { error: 'unavailable' } } : { body: { data: [] } } : undefined);
+  app.node('connect-model').value = 'vendor/custom-model';
+  await app.node('connect-model').emit('input');
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'vendor/custom-model');
+  fail = true;
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'vendor/custom-model');
+  assert.match(app.node('client-snippet').textContent, /model="vendor\/custom-model"/);
+  assert.match(app.node('model-hint').textContent, /模型查询失败/);
+});
+
+test('logout discards custom model selection before a new administrator session', async () => {
+  const app = await browser(({ path }) => {
+    if (path === `${API}/auth/logout`) return { body: {} };
+    if (path === `${API}/auth/login`) return { body: session };
+  });
+  app.node('connect-model').value = 'private/custom-model';
+  await app.node('connect-model').emit('input');
+  await app.node('logout').click();
+  assert.equal(app.node('connect-model').value, '');
+  assert.equal(app.node('model-options').childElementCount, 0);
+  assert.equal(app.node('model-hint').textContent, '');
+  await app.node('login-form').emit('submit');
+  assert.equal(app.node('connect-model').value, 'example-model');
+  assert.doesNotMatch(app.node('client-snippet').textContent, /private\/custom-model/);
 });
