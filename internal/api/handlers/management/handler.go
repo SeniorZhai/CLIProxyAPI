@@ -18,6 +18,7 @@ import (
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/config"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/pluginhost"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/pluginstore"
+	sdkaccess "github.com/router-for-me/CLIProxyAPI/v8/sdk/access"
 	sdkAuth "github.com/router-for-me/CLIProxyAPI/v8/sdk/auth"
 	coreauth "github.com/router-for-me/CLIProxyAPI/v8/sdk/cliproxy/auth"
 	log "github.com/sirupsen/logrus"
@@ -48,6 +49,7 @@ type Handler struct {
 	attemptsMu              sync.Mutex
 	failedAttempts          map[string]*attemptInfo // keyed by client IP
 	authManager             *coreauth.Manager
+	accessManager           *sdkaccess.Manager
 	tokenStore              coreauth.Store
 	localPassword           string
 	allowRemoteOverride     bool
@@ -141,6 +143,12 @@ func (h *Handler) SetAuthManager(manager *coreauth.Manager) {
 	h.mu.Unlock()
 }
 
+func (h *Handler) SetAccessManager(manager *sdkaccess.Manager) {
+	h.mu.Lock()
+	h.accessManager = manager
+	h.mu.Unlock()
+}
+
 // SetPluginHost updates the plugin host used by plugin-backed management endpoints.
 func (h *Handler) SetPluginHost(host *pluginhost.Host) {
 	if h == nil {
@@ -192,7 +200,10 @@ func (h *Handler) reloadConfigAfterManagementSave(ctx context.Context, snapshot 
 	}
 	h.reloadMu.Lock()
 	defer h.reloadMu.Unlock()
+	h.reloadConfigAfterManagementSaveLocked(ctx, snapshot)
+}
 
+func (h *Handler) reloadConfigAfterManagementSaveLocked(ctx context.Context, snapshot configReloadSnapshot) {
 	h.mu.Lock()
 	if snapshot.generation < h.appliedReloadGeneration {
 		h.mu.Unlock()

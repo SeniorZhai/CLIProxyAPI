@@ -1,0 +1,26 @@
+name: cliproxyapi-self-hosted
+
+services:
+  cpa:
+    image: cliproxyapi-self-hosted:local
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    working_dir: /data
+    command: ["/CLIProxyAPI/CLIProxyAPI", "--config", "/data/config.yaml"]
+    environment:
+      CPA_AUTO_SETUP: "true"
+      CPA_PUBLIC_URL: ${CPA_PUBLIC_URL:?Set CPA_PUBLIC_URL in deploy/.env}
+      CPA_ADMIN_USERNAME: ${CPA_ADMIN_USERNAME:-admin}
+      CPA_ADMIN_PASSWORD: ${CPA_ADMIN_PASSWORD:-}
+    ports:
+      - "127.0.0.1:${CPA_PORT:-8318}:8317"
+    volumes:
+      - ./data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8317/healthz"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 6
+    restart: unless-stopped

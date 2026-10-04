@@ -161,23 +161,29 @@ func (s *Service) Run(ctx context.Context) error {
 		s.hooks.OnBeforeStart(s.cfg)
 	}
 
-	s.serverErr = make(chan error, 1)
-	go func() {
-		if errStart := s.server.Start(); errStart != nil {
-			s.serverErr <- errStart
-		} else {
-			s.serverErr <- nil
+	adminEnabled := s.cfg.RemoteManagement.Admin.Enabled
+	startServer := func() {
+		s.serverErr = make(chan error, 1)
+		go func() {
+			if errStart := s.server.Start(); errStart != nil {
+				s.serverErr <- errStart
+			} else {
+				s.serverErr <- nil
+			}
+		}()
+
+		time.Sleep(100 * time.Millisecond)
+		fmt.Printf("API server started successfully on: %s:%d\n", s.cfg.Host, s.cfg.Port)
+
+		s.applyPprofConfig(s.cfg)
+		s.applyDiscoveryConfig(s.cfg)
+
+		if s.hooks.OnAfterStart != nil {
+			s.hooks.OnAfterStart(s)
 		}
-	}()
-
-	time.Sleep(100 * time.Millisecond)
-	fmt.Printf("API server started successfully on: %s:%d\n", s.cfg.Host, s.cfg.Port)
-
-	s.applyPprofConfig(s.cfg)
-	s.applyDiscoveryConfig(s.cfg)
-
-	if s.hooks.OnAfterStart != nil {
-		s.hooks.OnAfterStart(s)
+	}
+	if !adminEnabled {
+		startServer()
 	}
 
 	if !homeEnabled {
@@ -203,6 +209,10 @@ func (s *Service) Run(ctx context.Context) error {
 		}
 		log.Info("file watcher started for config and auth directory changes")
 		s.syncPluginModelRuntime(ctx)
+	}
+	if adminEnabled {
+		// Key mutations must not race with the watcher's initial configuration snapshot.
+		startServer()
 	}
 
 	s.registerModelRefreshCallback()

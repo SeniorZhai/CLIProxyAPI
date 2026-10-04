@@ -168,6 +168,10 @@ func (h *Handler) ConfigV8(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "invalid_config", "message": err.Error()})
 		return
 	}
+	if next.RemoteManagement.Admin != h.cfg.RemoteManagement.Admin {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "read_only_field", "field": "management/admin", "message": "Edit the local configuration and restart to change administrator settings"})
+		return
+	}
 	if err = config.ValidateV8Config(data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_config", "message": err.Error()})
 		return

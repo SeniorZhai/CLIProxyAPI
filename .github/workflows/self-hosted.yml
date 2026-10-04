@@ -1,0 +1,40 @@
+name: self-hosted
+
+on:
+  push:
+    branches: [feat/self-hosted-admin, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Test
+        run: |
+          go test ./...
+          node --test internal/admin/static/admin.test.mjs
+          go build -o test-output ./cmd/server
+          rm test-output
+      - name: Build and start a fresh Linux deployment
+        run: |
+          cp deploy/.env.example deploy/.env
+          ./deploy/install.sh
+      - name: Verify initialization and key persistence
+        working-directory: deploy
+        run: sudo python3 ../.github/scripts/self-hosted-smoke.py
+      - name: Clean up disposable deployment
+        if: always()
+        working-directory: deploy
+        run: docker compose down --remove-orphans

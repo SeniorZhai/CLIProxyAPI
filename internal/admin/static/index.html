@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>CLIProxyAPI 管理</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <script type="module" src="/admin/admin.js"></script>
+</head>
+<body>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  <main id="login-view" class="login-view">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="wordmark">CLIProxyAPI<span class="brand-mark" aria-hidden="true">/</span></div>
+      <h1 id="login-title">欢迎回来</h1>
+      <p class="muted">登录后管理服务账号，为你的设备生成接入 Key。</p>
+      <form id="login-form">
+        <label for="username">管理员账号</label>
+        <input id="username" name="username" value="admin" autocomplete="username" required maxlength="64">
+        <label for="password">密码</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="72">
+        <p id="login-error" class="form-error" role="alert"></p>
+        <button type="submit" class="primary full-width">登录</button>
+      </form>
+      <p class="login-note">首次登录凭据见服务器的 <code>admin/initial-credentials.txt</code>。网页登录有效期为 30 天。</p>
+    </section>
+  </main>
+
+  <div id="app-view" hidden>
+    <header class="topbar">
+      <div class="wordmark">CLIProxyAPI<span class="brand-mark" aria-hidden="true">/</span></div>
+      <div class="account-menu"><span id="admin-name"></span><button id="change-password" class="text-button">修改密码</button><button id="logout" class="text-button">退出</button></div>
+    </header>
+    <div class="layout">
+      <nav class="sidebar" aria-label="管理导航">
+        <p class="nav-caption">管理</p>
+        <button data-view="accounts" aria-current="page">上游账号 <span id="account-count">0</span></button>
+        <button data-view="keys">设备 Key <span id="key-count">0</span></button>
+        <button data-view="connect">客户端接入</button>
+        <p class="sidebar-note">账号放在服务器，<br>项目留在你的设备。</p>
+      </nav>
+      <main class="content">
+        <section id="accounts-view" class="view" aria-labelledby="accounts-title">
+          <div class="page-heading"><div><h1 id="accounts-title">上游账号</h1><p class="muted">集中连接你的 AI 服务，所有设备共用这些账号。</p></div><div class="actions"><button id="import-account">导入凭据</button><button id="add-account" class="primary">添加账号</button></div></div>
+          <input type="file" id="auth-file" accept=".json,application/json" multiple hidden>
+          <div class="toolbar"><label class="sr-only" for="account-search">搜索账号</label><input type="search" id="account-search" placeholder="搜索账号或服务商"><button id="reload-accounts" class="text-button">刷新列表</button></div>
+          <div id="account-list" class="account-list" aria-live="polite"></div>
+        </section>
+        <section id="keys-view" class="view" hidden aria-labelledby="keys-title">
+          <div class="page-heading"><div><h1 id="keys-title">设备 Key</h1><p class="muted">给每台设备一个 Key，随时可以单独撤销。</p></div><button id="create-key" class="primary">生成 Key</button></div>
+          <div class="info-bar">Key 长期有效，不随网页登录过期、退出或服务重启而改变。</div>
+          <div id="key-list" class="key-list" aria-live="polite"></div>
+        </section>
+        <section id="connect-view" class="view" hidden aria-labelledby="connect-title">
+          <div class="page-heading"><div><h1 id="connect-title">客户端接入</h1><p class="muted">复制配置到设备，代码读写和命令执行仍在本地完成。</p></div></div>
+          <div class="connection-panel">
+            <label for="api-base">OpenAI 兼容地址</label><div class="input-action"><input id="api-base" readonly><button id="copy-base">复制</button></div>
+            <div class="form-grid"><div><label for="connect-key">设备 Key</label><select id="connect-key"></select></div><div><label for="connect-model">模型</label><input id="connect-model" list="model-options" placeholder="选择或输入模型 ID"><datalist id="model-options"></datalist></div></div>
+            <p id="model-hint" class="muted"></p>
+            <div class="snippet-heading"><div class="tabs" role="group" aria-label="客户端类型"><button data-client="codex" aria-pressed="true">Codex CLI</button><button data-client="openai" aria-pressed="false">OpenAI</button><button data-client="claude" aria-pressed="false">Claude Code</button><button data-client="gemini" aria-pressed="false">Gemini</button></div><button id="copy-snippet">复制配置</button></div>
+            <p id="snippet-help" class="muted"></p><pre><code id="client-snippet"></code></pre>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="provider-dialog" aria-labelledby="provider-title">
+    <div class="dialog-heading"><h2 id="provider-title">连接服务账号</h2><button class="text-button" data-close="provider-dialog" aria-label="关闭">关闭</button></div>
+    <p class="muted">选择提供商，在官方页面完成授权。</p><div id="provider-list" class="provider-list"></div>
+  </dialog>
+  <dialog id="oauth-dialog" aria-labelledby="oauth-title">
+    <div class="dialog-heading"><h2 id="oauth-title">账号授权</h2><button class="text-button" data-close="oauth-dialog">关闭</button></div>
+    <p id="oauth-status" role="status"></p>
+    <div id="oauth-link-area" hidden><a id="oauth-link" class="button primary" target="_blank" rel="noopener noreferrer">打开授权页面</a><button id="copy-oauth-url">复制链接</button></div>
+    <div id="device-code-area" hidden><label for="device-code">在授权页面输入设备码</label><div class="input-action"><input id="device-code" readonly><button id="copy-device-code">复制</button></div></div>
+    <form id="callback-form" hidden><label for="callback-url">授权后的回调地址</label><p class="muted">如果授权后跳转到 localhost 或 127.0.0.1 并无法打开，请复制地址栏中的完整地址，粘贴到这里。</p><textarea id="callback-url" rows="3" autocomplete="off" placeholder="http://localhost:…/callback?code=…&state=…" required></textarea><button type="submit" class="primary">提交回调</button></form>
+  </dialog>
+  <dialog id="password-dialog" aria-labelledby="password-title">
+    <div class="dialog-heading"><h2 id="password-title">修改管理员密码</h2><button class="text-button" data-close="password-dialog">关闭</button></div>
+    <form id="password-form"><label for="current-password">当前密码</label><input id="current-password" type="password" autocomplete="current-password" required maxlength="72"><label for="new-password">新密码</label><input id="new-password" type="password" autocomplete="new-password" required minlength="12" maxlength="72"><p class="muted">使用 12 至 72 字节的密码。修改后需要重新登录，设备 Key 保持有效。</p><button type="submit" class="primary">保存密码</button></form>
+  </dialog>
+  <dialog id="models-dialog" aria-labelledby="models-title"><div class="dialog-heading"><h2 id="models-title">可用模型</h2><button class="text-button" data-close="models-dialog">关闭</button></div><div id="account-models"></div></dialog>
+  <noscript>请启用 JavaScript 以使用管理页面。</noscript>
+</body>
+</html>

@@ -317,6 +317,7 @@ type DiscoveryConfig struct {
 
 // RemoteManagement holds management API configuration under 'remote-management'.
 type RemoteManagement struct {
+	Admin AdminConfig `yaml:"admin,omitempty" json:"admin,omitempty"`
 	// AllowRemote toggles remote (non-localhost) access to management API.
 	AllowRemote bool `yaml:"allow-remote"`
 	// SecretKey is the management key (plaintext or bcrypt hashed). YAML key intentionally 'secret-key'.

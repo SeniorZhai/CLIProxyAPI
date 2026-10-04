@@ -41,7 +41,9 @@ func (w *Watcher) start(ctx context.Context) error {
 
 	go w.processEvents(ctx)
 
+	w.configApplyMu.Lock()
 	w.reloadClients(true, nil, false)
+	w.configApplyMu.Unlock()
 	return nil
 }
 

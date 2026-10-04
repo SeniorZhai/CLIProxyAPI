@@ -63,9 +63,17 @@ management:
   allow-remote: false
 
   # Management key. If a plaintext value is provided here, it will be hashed on startup.
-  # All management requests (even from localhost) require this key.
-  # Leave empty to disable the Management API entirely (404 for /v0/management and /v8/management routes).
+  # Required for legacy management access, even from localhost.
+  # With admin disabled, leaving this empty disables both management API versions.
   secret-key: ""
+
+  # Optional embedded administrator console at /admin/ (standalone file storage only).
+  # First startup generates credentials in <state-dir>/initial-credentials.txt.
+  # Settings below require a restart. See deploy/README.md for automatic setup.
+  admin:
+    enabled: false
+    state-dir: "admin" # Relative to the configuration file directory.
+    public-url: "https://proxy.example.com" # Origin only; HTTP allowed on localhost.
 
   # Disable the bundled management control panel asset download and HTTP route when true.
   disable-control-panel: false
