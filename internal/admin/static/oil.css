@@ -1,0 +1,1462 @@
+:root[data-theme^="oil-"] {
+  font-family: var(--app-font, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif);
+  --danger: #ad3040;
+  --danger-surface: #fff0f2;
+  --danger-border: #d9919e;
+  --success: #246444;
+  --success-surface: #e8f5ec;
+  --success-border: #98c4a7;
+  --backdrop: #11151d80;
+  --shadow: 0 5px 22px #15223508;
+  --overlay-shadow: 0 24px 80px #15223533;
+}
+:root[data-theme^="oil-"][data-theme-mode="dark"] {
+  --danger: #ffacb8;
+  --danger-surface: #3d252b;
+  --danger-border: #86505e;
+  --success: #a0dec0;
+  --success-surface: #20382d;
+  --success-border: #48765b;
+  --backdrop: #030509b3;
+  --shadow: 0 8px 28px #0000001a;
+  --overlay-shadow: 0 24px 80px #00000066;
+}
+:root[data-theme^="oil-"] :is(h1, h2) { font-family: var(--heading-font, var(--app-font, inherit)); }
+.theme-picker select { width: 170px; max-width: 100%; }
+:root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .account-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+:root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .account-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-content: start; align-items: start; gap: 16px; padding: 24px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+:root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .row-actions { grid-column: 1 / -1; margin-top: 12px; width: 100%; justify-content: flex-start; }
+:root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .empty { grid-column: 1 / -1; }
+:root[data-theme-layout="deck"] .view { max-width: 820px; }
+:root[data-theme-layout="editorial"] .page-heading { padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+:root[data-theme-layout="editorial"] .account-list { border-left: 0; border-right: 0; border-radius: 0; box-shadow: none; }
+:root[data-theme-layout="split"] .sidebar { background: var(--rail, #24282d); color: var(--rail-text, #f4f5f6); border-color: transparent; }
+:root[data-theme-layout="split"] .sidebar :is(.sidebar-note, button) { color: var(--rail-muted, #bec6cd); }
+:root[data-theme-layout="split"] .sidebar button[aria-current="page"] { color: var(--rail-accent, #fff0dc); background: var(--rail-selected, #424851); box-shadow: inset 3px 0 0 var(--rail-accent, #fff0dc); }
+@media (min-width: 701px) {
+  :root:is([data-theme-layout="editorial"], [data-theme-layout="board"], [data-theme-layout="deck"]) .layout { display: block; }
+  :root:is([data-theme-layout="editorial"], [data-theme-layout="board"], [data-theme-layout="deck"]) .sidebar { display: flex; gap: 12px; padding: 12px max(32px, calc((100vw - 1100px) / 2)); border-right: 0; border-bottom: 1px solid var(--border); }
+  :root:is([data-theme-layout="editorial"], [data-theme-layout="board"], [data-theme-layout="deck"]) .sidebar button { width: auto; min-width: 132px; margin: 0; gap: 16px; }
+  :root:is([data-theme-layout="editorial"], [data-theme-layout="board"], [data-theme-layout="deck"]) .sidebar .sidebar-note { display: none; }
+  :root:is([data-theme-layout="editorial"], [data-theme-layout="board"], [data-theme-layout="deck"]) .sidebar button[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--accent); }
+  :root[data-theme-layout="compact"] .layout { grid-template-columns: 164px minmax(0, 1fr); }
+  :root[data-theme-layout="compact"] .sidebar { padding: 22px 10px; }
+  :root[data-theme-layout="compact"] .content { padding: 28px; }
+  :root[data-theme-layout="compact"] .account-row { padding: 15px 18px; }
+  :root[data-theme-layout="compact"] .provider-mark { width: 32px; height: 32px; flex-basis: 32px; }
+}
+@media (max-width: 700px) {
+  :root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .account-list { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  :root:is([data-theme-layout="cards"], [data-theme-layout="board"]) .account-row { padding: 20px 16px; }
+  :root[data-theme-layout="split"] .sidebar button[aria-current="page"] { box-shadow: inset 0 -2px 0 var(--rail-accent, #fff0dc); }
+}
+
+:root[data-theme="oil-voice"] {
+  color-scheme: light;
+  --canvas: #f6eef1;
+  --surface: #fffafc;
+  --elevated: #f3e1e8;
+  --text: #31202a;
+  --muted: #75616b;
+  --border: #e3cbd5;
+  --control-border: #9f7f8f;
+  --accent: #b62255;
+  --accent-hover: #961641;
+  --on-accent: #ffffff;
+  --selected: #fde5ed;
+  --code: #f1e1e8;
+  --radius: 24px;
+  --control-radius: 99px;
+  --small-radius: 99px;
+  --row-padding: 26px;
+  --content-padding: 36px;
+  --heading-weight: 500;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-voice"] .account-list { border-top: 2px solid var(--accent); box-shadow: none; }
+:root[data-theme="oil-voice"] .provider-mark { border-radius: 50%; background: var(--selected); color: var(--accent); font-family: Georgia, serif; font-size: 21px; }
+:root[data-theme="oil-voice"] .primary { box-shadow: 0 3px 0 #83183e20; }
+:root[data-theme="oil-voice"] .row-title { font-weight: 500; letter-spacing: .2px; }
+
+:root[data-theme="oil-reel"] {
+  color-scheme: dark;
+  --canvas: #151413;
+  --surface: #201e1c;
+  --elevated: #2d2824;
+  --text: #f5ece2;
+  --muted: #b5aa9e;
+  --border: #433d37;
+  --control-border: #7c6e61;
+  --accent: #efb27a;
+  --accent-hover: #ffd0a5;
+  --on-accent: #2a1b11;
+  --selected: #3b2a1d;
+  --code: #12110f;
+  --radius: 4px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 17px;
+  --content-padding: 24px;
+  --heading-weight: 600;
+  --app-font: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-reel"] .provider-mark { border: 1px solid var(--control-border); border-radius: 2px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: #29231e; color: var(--accent); }
+:root[data-theme="oil-reel"] .account-list { border-top: 3px solid var(--accent); box-shadow: none; }
+:root[data-theme="oil-reel"] .row-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; }
+:root[data-theme="oil-reel"] .topbar { background: #1b1917; }
+
+:root[data-theme="oil-components"] {
+  color-scheme: light;
+  --canvas: #f5f4f0;
+  --surface: #fffefa;
+  --elevated: #f0e6d8;
+  --text: #30291f;
+  --muted: #6e604f;
+  --border: #d9ccbc;
+  --control-border: #a58b6e;
+  --accent: #78502d;
+  --accent-hover: #5d391d;
+  --on-accent: #fff9ef;
+  --selected: #eee1d0;
+  --code: #ebe2d5;
+  --radius: 18px;
+  --control-radius: 14px;
+  --small-radius: 5px;
+  --row-padding: 22px;
+  --content-padding: 34px;
+  --heading-weight: 650;
+  --app-font: "Trebuchet MS", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Trebuchet MS", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-components"] .primary { border-radius: 18px 5px 18px 5px; box-shadow: inset 0 1px 0 #ffffff55, 0 3px 0 #513216; }
+:root[data-theme="oil-components"] .provider-mark { border-radius: 50% 8px 50% 8px; background: #eee0cd; color: #78502d; border: 1px solid #bd9c76; }
+:root[data-theme="oil-components"] .account-list { box-shadow: inset 0 -2px 0 #d0bba3, 0 5px 18px #4936220a; }
+
+:root[data-theme="oil-muse"] {
+  color-scheme: dark;
+  --canvas: #17191a;
+  --surface: #232729;
+  --elevated: #2c3133;
+  --text: #edf0ed;
+  --muted: #a4afad;
+  --border: #47504e;
+  --control-border: #6f827c;
+  --accent: #cedbcf;
+  --accent-hover: #e6ede5;
+  --on-accent: #18221b;
+  --selected: #354139;
+  --code: #141a17;
+  --radius: 14px;
+  --control-radius: 7px;
+  --small-radius: 5px;
+  --row-padding: 22px;
+  --content-padding: 28px;
+  --heading-weight: 600;
+  --app-font: "Avenir Next", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-muse"] .wordmark { font-family: Georgia, serif; font-style: italic; font-size: 22px; }
+:root[data-theme="oil-muse"] .content { background-image: radial-gradient(#67716b38 .75px, transparent .75px); background-size: 20px 20px; }
+:root[data-theme="oil-muse"] .account-row { border: 1px solid var(--control-border); box-shadow: 0 8px 20px #00000022; }
+:root[data-theme="oil-muse"] .provider-mark { border: 1px dashed var(--muted); border-radius: 6px; background: transparent; color: var(--text); }
+
+:root[data-theme="oil-stay"] {
+  color-scheme: light;
+  --canvas: #f6f8fc;
+  --surface: #ffffff;
+  --elevated: #eef2fa;
+  --text: #1d2a40;
+  --muted: #5c697f;
+  --border: #d6dfed;
+  --control-border: #8f9db7;
+  --accent: #294a9f;
+  --accent-hover: #1d3679;
+  --on-accent: #ffffff;
+  --selected: #e6edfb;
+  --code: #edf1f9;
+  --radius: 7px;
+  --control-radius: 4px;
+  --small-radius: 2px;
+  --row-padding: 24px;
+  --content-padding: 38px;
+  --heading-weight: 600;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-stay"] .account-list { border-top: 3px solid #294a9f; box-shadow: none; }
+:root[data-theme="oil-stay"] .provider-mark { border: 1px solid #93a6cb; color: #294a9f; background: transparent; font-family: Georgia, serif; font-size: 22px; }
+:root[data-theme="oil-stay"] .page-heading h1 { letter-spacing: 1px; }
+:root[data-theme="oil-stay"] .primary { box-shadow: 0 2px 0 #18346f; }
+
+:root[data-theme="oil-diary"] {
+  color-scheme: light;
+  --canvas: #f3e9ed;
+  --surface: #fffdf6;
+  --elevated: #f3e4e9;
+  --text: #49323f;
+  --muted: #745c67;
+  --border: #ddc3ce;
+  --control-border: #a27b8f;
+  --accent: #913a61;
+  --accent-hover: #742a4c;
+  --on-accent: #ffffff;
+  --selected: #f3dfe8;
+  --code: #f6ece2;
+  --radius: 6px;
+  --control-radius: 8px;
+  --small-radius: 2px;
+  --row-padding: 25px;
+  --content-padding: 30px;
+  --heading-weight: 600;
+  --app-font: Verdana, Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Kaiti SC", STKaiti, Georgia, serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-diary"] .content { background-image: radial-gradient(#a3839138 .65px, transparent .65px); background-size: 17px 17px; }
+:root[data-theme="oil-diary"] .account-row { border: 1px solid #cfb9c0; border-radius: 2px; box-shadow: 2px 3px 0 #d9c3bf; }
+:root[data-theme="oil-diary"] .provider-mark { background: #f1e4bc; color: #685533; border-radius: 1px; box-shadow: inset 0 0 0 1px #d2bd81; }
+:root[data-theme="oil-diary"] .row-title { font-family: Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-weight: 600; }
+
+:root[data-theme="oil-home"] {
+  color-scheme: dark;
+  --canvas: #242a24;
+  --surface: #2d332c;
+  --elevated: #3b4338;
+  --text: #f0eddf;
+  --muted: #b4b6a8;
+  --border: #4d5849;
+  --control-border: #8d987c;
+  --accent: #d4b77d;
+  --accent-hover: #ebcc95;
+  --on-accent: #2e2818;
+  --selected: #4a4633;
+  --code: #242b21;
+  --radius: 22px;
+  --control-radius: 99px;
+  --small-radius: 99px;
+  --row-padding: 26px;
+  --content-padding: 34px;
+  --heading-weight: 450;
+  --app-font: "Avenir Next", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Avenir Next", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-home"] .account-row { background: linear-gradient(135deg, #343b2e, #2c322c); box-shadow: inset 0 1px 0 #ffffff0c, 0 8px 28px #10170f22; }
+:root[data-theme="oil-home"] .provider-mark { border-radius: 50%; border: 1px solid #7c886b; box-shadow: inset 0 2px 8px #13181088; background: #30392c; color: #d4b77d; }
+:root[data-theme="oil-home"] .primary { box-shadow: inset 0 1px 0 #ffffff66; }
+:root[data-theme="oil-home"] .row-title { font-weight: 500; letter-spacing: .2px; }
+
+:root[data-theme="oil-anime"] {
+  color-scheme: dark;
+  --canvas: #342f4b;
+  --surface: #494058;
+  --elevated: #574c68;
+  --text: #fff5e5;
+  --muted: #d6c8d7;
+  --border: #71647d;
+  --control-border: #a492aa;
+  --accent: #ffd0a0;
+  --accent-hover: #ffe0bd;
+  --on-accent: #382640;
+  --selected: #6a4c60;
+  --code: #352d41;
+  --radius: 2px;
+  --control-radius: 0px;
+  --small-radius: 0px;
+  --row-padding: 26px;
+  --content-padding: 36px;
+  --heading-weight: 500;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-anime"] .topbar { background: #292538; border-bottom-color: #9d8da4; }
+:root[data-theme="oil-anime"] .primary { border-style: double; border-width: 3px; border-color: #9b7055; box-shadow: 3px 3px 0 #221b31; }
+:root[data-theme="oil-anime"] .provider-mark { font-family: Georgia, serif; font-size: 23px; border-radius: 0; color: var(--accent); background: transparent; border-block: 1px solid var(--accent); }
+:root[data-theme="oil-anime"] .page-heading h1 { letter-spacing: 2px; font-weight: 500; }
+:root[data-theme="oil-anime"] .account-list { border-radius: 0; border-inline: 0; box-shadow: none; }
+
+:root[data-theme="oil-lingo"] {
+  color-scheme: light;
+  --canvas: #fbfaf1;
+  --surface: #fffff7;
+  --elevated: #f0efd8;
+  --text: #26291f;
+  --muted: #676c57;
+  --border: #c2c6af;
+  --control-border: #646b51;
+  --accent: #806300;
+  --accent-hover: #604900;
+  --on-accent: #ffffff;
+  --selected: #fff0a0;
+  --code: #ecefdb;
+  --radius: 18px;
+  --control-radius: 16px;
+  --small-radius: 99px;
+  --row-padding: 23px;
+  --content-padding: 30px;
+  --heading-weight: 800;
+  --app-font: "Arial Rounded MT Bold", "Trebuchet MS", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Arial Rounded MT Bold", "Trebuchet MS", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-lingo"] .primary { background: #ffdf39; color: #26291f; border: 2px solid #26291f; box-shadow: 0 4px 0 #26291f; }
+:root[data-theme="oil-lingo"] .primary:hover:not(:disabled) { background: #f3ce24; color: #26291f; border-color: #26291f; }
+:root[data-theme="oil-lingo"] .account-row { border: 2px solid #26291f; box-shadow: 0 3px 0 #d7dac9; }
+:root[data-theme="oil-lingo"] .provider-mark { border: 2px solid #26291f; background: #bfe8dc; color: #283f35; border-radius: 50%; }
+:root[data-theme="oil-lingo"] .row-actions button { font-weight: 700; }
+
+:root[data-theme="oil-tracker"] {
+  color-scheme: light;
+  --canvas: #f6f4f8;
+  --surface: #ffffff;
+  --elevated: #eee9f1;
+  --text: #342b3c;
+  --muted: #685970;
+  --border: #d6cbdd;
+  --control-border: #9c87ad;
+  --accent: #71527f;
+  --accent-hover: #563960;
+  --on-accent: #ffffff;
+  --selected: #e9ddec;
+  --code: #eee9f1;
+  --radius: 2px;
+  --control-radius: 2px;
+  --small-radius: 0px;
+  --row-padding: 16px;
+  --content-padding: 24px;
+  --heading-weight: 600;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 4px 18px #29251b09;
+  --rail: #302737;
+  --rail-text: #f3edf6;
+  --rail-muted: #c5b7ce;
+  --rail-selected: #d6c3df;
+  --rail-accent: #3d2c48;
+}
+:root[data-theme="oil-tracker"] .wordmark { font-family: Georgia, serif; font-style: italic; font-size: 22px; }
+:root[data-theme="oil-tracker"] .row-title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; font-weight: 500; }
+:root[data-theme="oil-tracker"] .provider-mark { border-radius: 0; background: #e3d6e9; color: #624772; border: 1px solid #c2adcf; }
+:root[data-theme="oil-tracker"] .account-list { border-top: 2px solid #887095; box-shadow: none; }
+
+:root[data-theme="oil-freight"] {
+  color-scheme: light;
+  --canvas: #f3f8f6;
+  --surface: #ffffff;
+  --elevated: #e7efec;
+  --text: #203a40;
+  --muted: #53696b;
+  --border: #cbdad5;
+  --control-border: #86a4a0;
+  --accent: #a64731;
+  --accent-hover: #823220;
+  --on-accent: #ffffff;
+  --selected: #f3e4df;
+  --code: #e7eeec;
+  --radius: 3px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 22px;
+  --content-padding: 34px;
+  --heading-weight: 600;
+  --app-font: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-freight"] .provider-mark { background: transparent; border: 1px solid var(--control-border); border-radius: 50%; color: #29494d; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+:root[data-theme="oil-freight"] .account-list { border-top: 3px solid var(--accent); border-radius: 0; box-shadow: none; }
+:root[data-theme="oil-freight"] .row-actions { border-left: 1px solid var(--border); padding-left: 12px; }
+:root[data-theme="oil-freight"] .wordmark { font-weight: 800; letter-spacing: -1px; }
+
+:root[data-theme="oil-ride"] {
+  color-scheme: light;
+  --canvas: #eef0f2;
+  --surface: #ffffff;
+  --elevated: #e7e9ed;
+  --text: #141821;
+  --muted: #5b6574;
+  --border: #d3d7df;
+  --control-border: #8b95a6;
+  --accent: #294bdd;
+  --accent-hover: #2038a5;
+  --on-accent: #ffffff;
+  --selected: #e6eafe;
+  --code: #e9edf6;
+  --radius: 28px;
+  --control-radius: 99px;
+  --small-radius: 99px;
+  --row-padding: 28px;
+  --content-padding: 32px;
+  --heading-weight: 750;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Arial Black", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-ride"] .account-list { border: 0; box-shadow: 0 12px 30px #15223812; }
+:root[data-theme="oil-ride"] .provider-mark { border-radius: 50%; background: #141821; color: #ffffff; font-weight: 800; }
+:root[data-theme="oil-ride"] .topbar { background: #11141a; color: #ffffff; --muted: #b8bec9; --border: #424956; --control-border: #8390a6; --surface: #1d2330; --elevated: #2c3442; --text: #f5f7fa; }
+:root[data-theme="oil-ride"] .row-title { font-weight: 750; }
+
+:root[data-theme="oil-knot"] {
+  color-scheme: light;
+  --canvas: #f4f4ef;
+  --surface: #fffffc;
+  --elevated: #edede7;
+  --text: #33333b;
+  --muted: #65636d;
+  --border: #d8d7dc;
+  --control-border: #a7a0b4;
+  --accent: #62556f;
+  --accent-hover: #483d55;
+  --on-accent: #ffffff;
+  --selected: #e9e4f0;
+  --code: #edebf0;
+  --radius: 2px;
+  --control-radius: 2px;
+  --small-radius: 99px;
+  --row-padding: 24px;
+  --content-padding: 36px;
+  --heading-weight: 500;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 4px 18px #29251b09;
+  --rail: #3a3740;
+  --rail-text: #f3f0f4;
+  --rail-muted: #bfb8c8;
+  --rail-selected: #5c536b;
+  --rail-accent: #f5efff;
+}
+:root[data-theme="oil-knot"] .provider-mark { border: 1px solid #a39ab0; border-radius: 50%; background: transparent; color: #62556f; font-family: Georgia, serif; font-size: 21px; }
+:root[data-theme="oil-knot"] .account-list { border-inline: 0; box-shadow: none; }
+:root[data-theme="oil-knot"] .row-title { font-family: Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-weight: 500; }
+:root[data-theme="oil-knot"] .primary { border-radius: 1px; box-shadow: none; }
+
+:root[data-theme="oil-recipe"] {
+  color-scheme: dark;
+  --canvas: #23241f;
+  --surface: #2b2c25;
+  --elevated: #36392f;
+  --text: #f6f4e8;
+  --muted: #c0c2b2;
+  --border: #4a4e40;
+  --control-border: #898e73;
+  --accent: #efb58f;
+  --accent-hover: #ffd0ad;
+  --on-accent: #312319;
+  --selected: #484035;
+  --code: #1e211b;
+  --radius: 8px;
+  --control-radius: 6px;
+  --small-radius: 4px;
+  --row-padding: 24px;
+  --content-padding: 34px;
+  --heading-weight: 750;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-recipe"] .provider-mark { font-size: 22px; font-weight: 800; background: #efb58f; color: #312319; border-radius: 4px; }
+:root[data-theme="oil-recipe"] .account-list { border-top: 4px solid var(--accent); box-shadow: none; }
+:root[data-theme="oil-recipe"] .row-title { font-size: 16px; font-weight: 700; }
+:root[data-theme="oil-recipe"] .row-actions button:not(.danger) { border: 1px solid var(--control-border); color: var(--text); background: var(--elevated); }
+
+:root[data-theme="oil-cards"] {
+  color-scheme: light;
+  --canvas: #eef1eb;
+  --surface: #fffffc;
+  --elevated: #e6ebe1;
+  --text: #2a342c;
+  --muted: #5b6958;
+  --border: #cfd8c9;
+  --control-border: #8d9f85;
+  --accent: #a04233;
+  --accent-hover: #7b2e25;
+  --on-accent: #ffffff;
+  --selected: #f6e6df;
+  --code: #e4eadd;
+  --radius: 4px;
+  --control-radius: 5px;
+  --small-radius: 2px;
+  --row-padding: 23px;
+  --content-padding: 30px;
+  --heading-weight: 600;
+  --app-font: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 4px 18px #29251b09;
+}
+:root[data-theme="oil-cards"] .row-title { font-family: Georgia, "Songti SC", "Noto Serif CJK SC", serif; font-size: 16px; font-weight: 500; }
+:root[data-theme="oil-cards"] .account-row { box-shadow: 0 2px 2px #1e2e1608; border-top: 3px solid #92a087; }
+:root[data-theme="oil-cards"] .provider-mark { border-radius: 2px; background: #ecede4; border: 1px solid #c9cfc1; color: #52634e; font-family: Georgia, serif; }
+:root[data-theme="oil-cards"] .primary { box-shadow: 0 2px 0 #773025; }
+
+:root[data-theme="oil-pulse"] {
+  color-scheme: dark;
+  --canvas: #11160f;
+  --surface: #191f15;
+  --elevated: #242d1d;
+  --text: #f1f5e8;
+  --muted: #a8b39a;
+  --border: #394630;
+  --control-border: #748763;
+  --accent: #c2f651;
+  --accent-hover: #dafc8d;
+  --on-accent: #203006;
+  --selected: #334020;
+  --code: #0e140b;
+  --radius: 3px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 18px;
+  --content-padding: 28px;
+  --heading-weight: 800;
+  --app-font: "Arial Narrow", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --heading-font: Impact, "Arial Narrow", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --shadow: 0 6px 22px #00000018;
+}
+:root[data-theme="oil-pulse"] .sidebar button span { font-family: Impact, "Arial Narrow", sans-serif; font-size: 18px; }
+:root[data-theme="oil-pulse"] .provider-mark { font-family: Impact, "Arial Narrow", sans-serif; font-size: 23px; background: var(--accent); color: var(--on-accent); border-radius: 2px; }
+:root[data-theme="oil-pulse"] .account-list { border-top: 3px solid var(--accent); box-shadow: none; }
+:root[data-theme="oil-pulse"] .row-title { font-weight: 750; letter-spacing: .2px; }
+
+:root[data-theme="oil-keeb"] {
+  color-scheme: light;
+  --canvas: #eeefed;
+  --surface: #fafbf8;
+  --elevated: #e7e2ee;
+  --text: #27252d;
+  --muted: #635d6b;
+  --border: #d2ccd9;
+  --control-border: #8b7e9c;
+  --accent: #665279;
+  --accent-hover: #51415f;
+  --on-accent: #ffffff;
+  --selected: #e5dcee;
+  --code: #e8e6eb;
+  --radius: 9px;
+  --control-radius: 6px;
+  --small-radius: 3px;
+  --row-padding: 22px;
+  --content-padding: 34px;
+  --heading-weight: 550;
+  --app-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-keeb"] .account-row { box-shadow: 0 5px 0 #d4cedc, 0 12px 20px #4e40510a; }
+:root[data-theme="oil-keeb"] .provider-mark { background: linear-gradient(145deg, #ece6f3, #bfb1cf); color: #47374f; border: 1px solid #a192b1; box-shadow: inset 0 2px 0 #ffffff, inset 0 -3px 0 #a597b7; }
+:root[data-theme="oil-keeb"] .row-actions button { border: 1px solid var(--control-border); box-shadow: inset 0 -2px 0 #d5cedf; }
+:root[data-theme="oil-keeb"] .wordmark { font-weight: 750; letter-spacing: -1px; }
+
+:root[data-theme="oil-editor"] {
+  color-scheme: dark;
+  --canvas: #161719;
+  --surface: #202123;
+  --elevated: #2d2e31;
+  --text: #f0eeea;
+  --muted: #b8b5b1;
+  --border: #3b3c40;
+  --control-border: #797a80;
+  --accent: #edb17f;
+  --accent-hover: #f4c69f;
+  --on-accent: #281e17;
+  --selected: #413327;
+  --code: #141517;
+  --radius: 3px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 16px;
+  --content-padding: 28px;
+  --heading-weight: 650;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace;
+  --shadow: none;
+  --overlay-shadow: 0 20px 70px #00000070;
+  --backdrop: #050507aa;
+}
+:root[data-theme="oil-editor"] .toolbar { background: var(--surface); border: 1px solid var(--border); padding: 10px; }
+:root[data-theme="oil-editor"] .account-list, :root[data-theme="oil-editor"] .key-list { box-shadow: inset 0 1px 0 #ffffff0d; }
+:root[data-theme="oil-editor"] .provider-mark { border: 1px solid #6e5441; background: #382d25; color: #edb17f; border-radius: 2px; }
+:root[data-theme="oil-editor"] .row-title, :root[data-theme="oil-editor"] .row-detail { font-family: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace; }
+
+:root[data-theme="oil-weather"] {
+  color-scheme: light;
+  --canvas: #edf0f2;
+  --surface: #fff8ec;
+  --elevated: #ffedcc;
+  --text: #50321c;
+  --muted: #795937;
+  --border: #ead4b1;
+  --control-border: #a48356;
+  --accent: #8f5a20;
+  --accent-hover: #7b4b18;
+  --on-accent: #ffffff;
+  --selected: #ffe9bd;
+  --code: #fff0d7;
+  --radius: 26px;
+  --control-radius: 18px;
+  --small-radius: 12px;
+  --row-padding: 25px;
+  --content-padding: 36px;
+  --heading-weight: 500;
+  --app-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-weather"] .account-row { background: linear-gradient(155deg, #ffe0a7, #fff7e8 68%); border-color: #efcc92; box-shadow: 0 8px 18px #a2752820; }
+:root[data-theme="oil-weather"] .provider-mark { border-radius: 50%; background: linear-gradient(145deg, #fffced, #f5ce78); color: #79511e; box-shadow: inset 0 2px 3px #ffffff, 0 4px 8px #9b691526; }
+:root[data-theme="oil-weather"] .row-actions button { background: #fffaf0; border-color: #dbc098; }
+:root[data-theme="oil-weather"] .wordmark { font-weight: 500; letter-spacing: .3px; }
+
+:root[data-theme="oil-contract"] {
+  color-scheme: light;
+  --canvas: #e9ecee;
+  --surface: #fafbfc;
+  --elevated: #eef0f2;
+  --text: #263036;
+  --muted: #5c666d;
+  --border: #d3d9dd;
+  --control-border: #8a969c;
+  --accent: #963f38;
+  --accent-hover: #7b302b;
+  --on-accent: #ffffff;
+  --selected: #f9e6e3;
+  --code: #f0f2f4;
+  --radius: 5px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 25px;
+  --content-padding: 42px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+  --rail: #252d33;
+  --rail-text: #f4f5f6;
+  --rail-muted: #bcc4c9;
+  --rail-selected: #3c4248;
+  --rail-accent: #f0a197;
+}
+:root[data-theme="oil-contract"] .account-list, :root[data-theme="oil-contract"] .connection-panel { border-top: 3px solid #a85d55; box-shadow: 0 8px 24px #2530390d; }
+:root[data-theme="oil-contract"] .provider-mark { background: #f5e3df; color: #873c35; border-radius: 2px; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; }
+:root[data-theme="oil-contract"] .row-title { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 16px; font-weight: 600; }
+:root[data-theme="oil-contract"] .row-actions button { border-bottom: 1px solid var(--control-border); border-radius: 0; }
+
+:root[data-theme="oil-ledger"] {
+  color-scheme: light;
+  --canvas: #edf0e6;
+  --surface: #f8f9f1;
+  --elevated: #e9eddc;
+  --text: #1e3029;
+  --muted: #59665a;
+  --border: #d2d9c8;
+  --control-border: #849175;
+  --accent: #48600e;
+  --accent-hover: #35490a;
+  --on-accent: #ffffff;
+  --selected: #e5edc9;
+  --code: #e9eedc;
+  --radius: 17px;
+  --control-radius: 10px;
+  --small-radius: 5px;
+  --row-padding: 23px;
+  --content-padding: 38px;
+  --heading-weight: 650;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+  --rail: #142623;
+  --rail-text: #f1f6e9;
+  --rail-muted: #b4c4b8;
+  --rail-selected: #283d31;
+  --rail-accent: #d0f281;
+}
+:root[data-theme="oil-ledger"] .provider-mark { background: #d4ed89; color: #344715; border-radius: 8px; }
+:root[data-theme="oil-ledger"] .row-title, :root[data-theme="oil-ledger"] .key-value { font-family: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace; font-variant-numeric: tabular-nums; }
+:root[data-theme="oil-ledger"] .account-list, :root[data-theme="oil-ledger"] .key-list { box-shadow: none; border-left: 0; border-right: 0; }
+:root[data-theme="oil-ledger"] .account-row + .account-row { border-top-style: solid; border-top-color: #c9d1b9; }
+
+:root[data-theme="oil-folio"] {
+  color-scheme: light;
+  --canvas: #edf3f3;
+  --surface: #f8fbfa;
+  --elevated: #dce8e6;
+  --text: #253b38;
+  --muted: #475a57;
+  --border: #c6d6d2;
+  --control-border: #809990;
+  --accent: #2e554a;
+  --accent-hover: #234438;
+  --on-accent: #ffffff;
+  --selected: #dce9e0;
+  --code: #e3eeea;
+  --radius: 1px;
+  --control-radius: 1px;
+  --small-radius: 1px;
+  --row-padding: 26px;
+  --content-padding: 42px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-folio"] .account-row { background: #cfdee1; border: 0; border-top: 5px solid #426e6b; box-shadow: none; }
+:root[data-theme="oil-folio"] .account-row:nth-child(3n+2) { background: #edd0c4; border-top-color: #995d48; }
+:root[data-theme="oil-folio"] .account-row:nth-child(3n) { background: #ecd7aa; border-top-color: #8e7138; }
+:root[data-theme="oil-folio"] .provider-mark { background: transparent; color: #294641; border: 1px solid #6c857b; border-radius: 50% 50% 50% 8%; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 21px; }
+:root[data-theme="oil-folio"] .wordmark { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-weight: 500; letter-spacing: 1px; }
+
+:root[data-theme="oil-camera"] {
+  color-scheme: light;
+  --canvas: #e9e3d4;
+  --surface: #f5f3eb;
+  --elevated: #e6e6d9;
+  --text: #252d24;
+  --muted: #5c6252;
+  --border: #cfd1c1;
+  --control-border: #878d75;
+  --accent: #a84432;
+  --accent-hover: #8d3527;
+  --on-accent: #ffffff;
+  --selected: #eee0d4;
+  --code: #e8e8db;
+  --radius: 12px;
+  --control-radius: 4px;
+  --small-radius: 2px;
+  --row-padding: 25px;
+  --content-padding: 38px;
+  --heading-weight: 600;
+  --app-font: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-camera"] .account-list { border-top: 3px solid #343b2d; box-shadow: 0 5px 0 #d4d3c5; }
+:root[data-theme="oil-camera"] .provider-mark { border-radius: 50%; border: 2px solid #f5f3eb; background: #293226; color: #f4f4e8; outline: 1px solid #7d8470; }
+:root[data-theme="oil-camera"] .row-actions button { border: 1px solid #9a9d8e; border-bottom-width: 3px; background: #f5f3eb; }
+:root[data-theme="oil-camera"] .wordmark { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; letter-spacing: 1px; }
+
+:root[data-theme="oil-silver"] {
+  color-scheme: light;
+  --canvas: #eceee9;
+  --surface: #f9faf7;
+  --elevated: #e5e8e1;
+  --text: #292f2c;
+  --muted: #5e665f;
+  --border: #cdd2ca;
+  --control-border: #899288;
+  --accent: #303d34;
+  --accent-hover: #202c23;
+  --on-accent: #ffffff;
+  --selected: #e1e7dd;
+  --code: #e9ede6;
+  --radius: 0px;
+  --control-radius: 0px;
+  --small-radius: 0px;
+  --row-padding: 29px;
+  --content-padding: 46px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+  --success: #3e5743;
+  --success-surface: #e6ece2;
+  --success-border: #b4c4ad;
+}
+:root[data-theme="oil-silver"] .account-list, :root[data-theme="oil-silver"] .key-list { box-shadow: none; border-left: 0; border-right: 0; }
+:root[data-theme="oil-silver"] .provider-mark { color: #38413a; background: linear-gradient(135deg, #f9fbf6, #d5d9d1 50%, #eef0e9); border: 1px solid #abb2a6; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; }
+:root[data-theme="oil-silver"] .row-actions button { border: 1px solid var(--control-border); font-weight: 400; }
+:root[data-theme="oil-silver"] .wordmark { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 21px; font-weight: 500; letter-spacing: -.6px; }
+
+:root[data-theme="oil-reader"] {
+  color-scheme: light;
+  --canvas: #e7e3d8;
+  --surface: #f7f5eb;
+  --elevated: #edeade;
+  --text: #282c28;
+  --muted: #5e6055;
+  --border: #d3d1c2;
+  --control-border: #96968a;
+  --accent: #344da4;
+  --accent-hover: #273d87;
+  --on-accent: #ffffff;
+  --selected: #e5e9f7;
+  --code: #edece2;
+  --radius: 2px;
+  --control-radius: 2px;
+  --small-radius: 1px;
+  --row-padding: 29px;
+  --content-padding: 46px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-reader"] .account-list, :root[data-theme="oil-reader"] .key-list { box-shadow: 0 8px 24px #3b3b2510; border: 0; border-top: 1px solid #a2a18c; }
+:root[data-theme="oil-reader"] .provider-mark { background: transparent; color: #344da4; border-left: 3px solid #344da4; border-radius: 0; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 22px; }
+:root[data-theme="oil-reader"] .row-title { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 16px; font-weight: 500; }
+:root[data-theme="oil-reader"] .row-actions button { border: 0; border-bottom: 1px solid #b7bed7; border-radius: 0; }
+
+:root[data-theme="oil-lims"] {
+  color-scheme: light;
+  --canvas: #f3f6fa;
+  --surface: #ffffff;
+  --elevated: #edf2f8;
+  --text: #243740;
+  --muted: #5c6c75;
+  --border: #d7e0e7;
+  --control-border: #879dac;
+  --accent: #2c5ba2;
+  --accent-hover: #214980;
+  --on-accent: #ffffff;
+  --selected: #e7effb;
+  --code: #eef3f8;
+  --radius: 5px;
+  --control-radius: 4px;
+  --small-radius: 2px;
+  --row-padding: 17px;
+  --content-padding: 30px;
+  --heading-weight: 650;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-lims"] .account-row:nth-child(even) { background: #f4f7fb; }
+:root[data-theme="oil-lims"] .provider-mark { border: 1px solid #b4c9df; background: #edf3fb; color: #2c5ba2; border-radius: 3px; }
+:root[data-theme="oil-lims"] .row-detail, :root[data-theme="oil-lims"] .key-value { font-family: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace; font-variant-numeric: tabular-nums; }
+:root[data-theme="oil-lims"] .account-list, :root[data-theme="oil-lims"] .key-list { box-shadow: none; border-radius: 2px; }
+
+:root[data-theme="oil-calendar"] {
+  color-scheme: light;
+  --canvas: #ebeff2;
+  --surface: #f9fafb;
+  --elevated: #e4ebf0;
+  --text: #28383f;
+  --muted: #52646e;
+  --border: #ccd7df;
+  --control-border: #8299a7;
+  --accent: #2c5265;
+  --accent-hover: #203f51;
+  --on-accent: #ffffff;
+  --selected: #dceaf3;
+  --code: #e9eff4;
+  --radius: 16px;
+  --control-radius: 20px;
+  --small-radius: 9px;
+  --row-padding: 24px;
+  --content-padding: 38px;
+  --heading-weight: 550;
+  --app-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-calendar"] .account-row { background: #edf3f7; border-left: 4px solid #9cbbd2; }
+:root[data-theme="oil-calendar"] .account-row:nth-child(even) { background: #fbf4dd; border-left-color: #c3a04d; }
+:root[data-theme="oil-calendar"] .provider-mark { background: #2a3a43; color: #f9fbfc; border-radius: 999px; }
+:root[data-theme="oil-calendar"] .wordmark { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-weight: 500; font-size: 23px; letter-spacing: -1px; }
+
+:root[data-theme="oil-checkout"] {
+  color-scheme: light;
+  --canvas: #f2eee5;
+  --surface: #fffaf0;
+  --elevated: #f3e1dc;
+  --text: #252840;
+  --muted: #5c5c72;
+  --border: #d6cfcf;
+  --control-border: #8e8fad;
+  --accent: #283fd5;
+  --accent-hover: #1f30ac;
+  --on-accent: #ffffff;
+  --selected: #e8eaff;
+  --code: #eeeffa;
+  --radius: 20px;
+  --control-radius: 12px;
+  --small-radius: 7px;
+  --row-padding: 24px;
+  --content-padding: 40px;
+  --heading-weight: 600;
+  --app-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-checkout"] .sidebar { background: #f3d9d5; }
+:root[data-theme="oil-checkout"] input, :root[data-theme="oil-checkout"] select, :root[data-theme="oil-checkout"] textarea { background: #f8f8ff; border-color: #989ab8; }
+:root[data-theme="oil-checkout"] .primary { box-shadow: 0 4px 0 #182d9f; }
+:root[data-theme="oil-checkout"] .provider-mark { background: #293fd4; color: #ffffff; border-radius: 50%; }
+
+:root[data-theme="oil-maker"] {
+  color-scheme: light;
+  --canvas: #f7f1f3;
+  --surface: #fffaf9;
+  --elevated: #ecdee5;
+  --text: #382e39;
+  --muted: #6b5c69;
+  --border: #dcccd6;
+  --control-border: #a58c9e;
+  --accent: #493746;
+  --accent-hover: #382737;
+  --on-accent: #ffffff;
+  --selected: #ecdeeb;
+  --code: #f0e5eb;
+  --radius: 18px;
+  --control-radius: 999px;
+  --small-radius: 10px;
+  --row-padding: 26px;
+  --content-padding: 40px;
+  --heading-weight: 600;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-maker"] .account-row { background: #d0dff3; border: 0; box-shadow: 0 5px 0 #b9cce3; }
+:root[data-theme="oil-maker"] .account-row:nth-child(3n+2) { background: linear-gradient(225deg, #e8ded1 0 13px, #fffdf4 13px); border-radius: 2px; box-shadow: 0 5px 0 #e2dacb; }
+:root[data-theme="oil-maker"] .account-row:nth-child(3n) { background: #ecdae3; box-shadow: 0 5px 0 #d9c2cf; }
+:root[data-theme="oil-maker"] .provider-mark { background: #433341; color: #fffafc; border-radius: 50%; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 20px; }
+:root[data-theme="oil-maker"] .wordmark { font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-style: italic; font-size: 22px; }
+
+:root[data-theme="oil-trail"] {
+  color-scheme: light;
+  --canvas: #e8ece3;
+  --surface: #f7f9f2;
+  --elevated: #dfe6d6;
+  --text: #293326;
+  --muted: #56614e;
+  --border: #cbd4c2;
+  --control-border: #879778;
+  --accent: #a6421d;
+  --accent-hover: #873416;
+  --on-accent: #ffffff;
+  --selected: #f1e2d5;
+  --code: #e5ecdc;
+  --radius: 4px;
+  --control-radius: 4px;
+  --small-radius: 2px;
+  --row-padding: 21px;
+  --content-padding: 32px;
+  --heading-weight: 750;
+  --app-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-trail"] .account-row { border-left: 3px solid #788868; }
+:root[data-theme="oil-trail"] .account-row:has(.badge.paused) { border-left-style: dashed; }
+:root[data-theme="oil-trail"] .provider-mark { border-radius: 50%; background: #f7f9f2; border: 2px solid #aa522a; color: #86401f; }
+:root[data-theme="oil-trail"] .row-detail { font-family: "SFMono-Regular", Consolas, "Liberation Mono", "PingFang SC", monospace; }
+:root[data-theme="oil-trail"] .wordmark { font-weight: 750; letter-spacing: .8px; }
+
+:root[data-theme="oil-brew"] {
+  color-scheme: light;
+  --canvas: #f0e6bb;
+  --surface: #fffef5;
+  --elevated: #eeeccb;
+  --text: #2d3527;
+  --muted: #5c624b;
+  --border: #d6d8b8;
+  --control-border: #979e73;
+  --accent: #414d2f;
+  --accent-hover: #303c21;
+  --on-accent: #ffffff;
+  --selected: #e8e9c8;
+  --code: #efefd6;
+  --radius: 25px;
+  --control-radius: 22px;
+  --small-radius: 10px;
+  --row-padding: 26px;
+  --content-padding: 40px;
+  --heading-weight: 650;
+  --app-font: "Avenir Next", "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Avenir Next", "PingFang SC", sans-serif;
+  --shadow: 0 5px 20px #2020200a;
+  --overlay-shadow: 0 20px 70px #10182033;
+  --backdrop: #10182066;
+}
+:root[data-theme="oil-brew"] .account-list { border-top: 4px solid #d2ac32; box-shadow: 0 9px 24px #7e6b2117; }
+:root[data-theme="oil-brew"] .provider-mark { background: linear-gradient(145deg, #fff9d2, #ebc94f); color: #514519; border-radius: 50%; box-shadow: inset 0 2px 0 #ffffff, 0 2px 4px #7b691a26; }
+:root[data-theme="oil-brew"] .row-actions button { border: 1px solid #afb58d; border-radius: 999px; }
+:root[data-theme="oil-brew"] .row-title { font-size: 16px; font-weight: 650; }
+
+:root[data-theme="oil-watch"] {
+  color-scheme: light;
+  --canvas: #f0f2f5;
+  --surface: #ffffff;
+  --elevated: #e7eaf0;
+  --text: #22262d;
+  --muted: #59616f;
+  --border: #cbd0d9;
+  --control-border: #78818f;
+  --accent: #292e38;
+  --accent-hover: #141922;
+  --on-accent: #ffffff;
+  --selected: #e4e7f4;
+  --code: #e7eaf0;
+  --radius: 4px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 24px;
+  --content-padding: 34px;
+  --heading-weight: 800;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --shadow: none;
+}
+:root[data-theme="oil-watch"] .provider-mark { border-radius:50%;background:#242831;color:#ffffff;border:3px solid #e0e4ed;font-family:var(--heading-font);font-size:20px; }
+:root[data-theme="oil-watch"] .account-row { box-shadow:inset 0 -3px 0 #272c34; }
+:root[data-theme="oil-watch"] h1, :root[data-theme="oil-watch"] .wordmark { letter-spacing:-.8px;font-stretch:condensed; }
+:root[data-theme="oil-watch"] .row-detail { font-variant-numeric:tabular-nums; }
+
+:root[data-theme="oil-roast"] {
+  color-scheme: light;
+  --canvas: #e7ebd9;
+  --surface: #f8f8ef;
+  --elevated: #edf1db;
+  --text: #173f35;
+  --muted: #53634d;
+  --border: #c3cfb1;
+  --control-border: #7a8d6a;
+  --accent: #244f3d;
+  --accent-hover: #183c2d;
+  --on-accent: #ffffff;
+  --selected: #eaf28f;
+  --code: #e3e8d4;
+  --radius: 2px;
+  --control-radius: 2px;
+  --small-radius: 2px;
+  --row-padding: 26px;
+  --content-padding: 40px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif SC", serif;
+  --shadow: none;
+}
+:root[data-theme="oil-roast"] .topbar { border-top:5px solid #173f35; }
+:root[data-theme="oil-roast"] .provider-mark { border-radius:50%;background:#eaf28f;color:#26472c;font-family:var(--heading-font);font-size:21px;font-weight:400; }
+:root[data-theme="oil-roast"] .row-title { font-family:var(--heading-font);font-weight:500;font-size:16px; }
+:root[data-theme="oil-roast"] .sidebar button { letter-spacing:.04em; }
+
+:root[data-theme="oil-letter"] {
+  color-scheme: light;
+  --canvas: #e1eced;
+  --surface: #fffdf3;
+  --elevated: #edf1eb;
+  --text: #294b55;
+  --muted: #536a6e;
+  --border: #c4d4d5;
+  --control-border: #788f94;
+  --accent: #315e69;
+  --accent-hover: #214a54;
+  --on-accent: #ffffff;
+  --selected: #d6e7e8;
+  --code: #edf0e8;
+  --radius: 2px;
+  --control-radius: 5px;
+  --small-radius: 2px;
+  --row-padding: 25px;
+  --content-padding: 34px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif SC", serif;
+  --shadow: 3px 4px 0 #bfced05c;
+}
+:root[data-theme="oil-letter"] .provider-mark { border-radius:50%;background:#d9e6e8;color:#315e69;font-family:var(--heading-font);font-size:21px;font-style:italic;font-weight:400; }
+:root[data-theme="oil-letter"] .account-list, :root[data-theme="oil-letter"] .key-list { border-top:3px solid #afc3c8; }
+:root[data-theme="oil-letter"] .row-title { font-family:var(--heading-font);font-weight:500;font-size:16px; }
+:root[data-theme="oil-letter"] .row-actions button { border-radius:2px; }
+
+:root[data-theme="oil-sneaker"] {
+  color-scheme: light;
+  --canvas: #e9e9ed;
+  --surface: #ffffff;
+  --elevated: #f0f0f3;
+  --text: #242425;
+  --muted: #5d5d65;
+  --border: #cacacf;
+  --control-border: #82828a;
+  --accent: #252525;
+  --accent-hover: #060606;
+  --on-accent: #ffffff;
+  --selected: #e2e2e7;
+  --code: #eeeef0;
+  --radius: 0px;
+  --control-radius: 0px;
+  --small-radius: 0px;
+  --row-padding: 24px;
+  --content-padding: 32px;
+  --heading-weight: 800;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --shadow: none;
+}
+:root[data-theme="oil-sneaker"] h1, :root[data-theme="oil-sneaker"] .wordmark { font-style:italic;letter-spacing:-.8px; }
+:root[data-theme="oil-sneaker"] .provider-mark { background:#93482f;color:#ffffff;border-radius:0;font-style:italic;font-family:var(--heading-font);font-size:22px; }
+:root[data-theme="oil-sneaker"] .account-row { border-bottom:3px solid #252525; }
+:root[data-theme="oil-sneaker"] .row-actions button { border-bottom-width:2px; }
+
+:root[data-theme="oil-copilot"] {
+  color-scheme: light;
+  --canvas: #ecefe5;
+  --surface: #f8f8f0;
+  --elevated: #e7ebdc;
+  --text: #282d22;
+  --muted: #5e6852;
+  --border: #cdd4bf;
+  --control-border: #839272;
+  --accent: #486032;
+  --accent-hover: #354925;
+  --on-accent: #ffffff;
+  --selected: #dfe9cc;
+  --code: #24291f;
+  --radius: 3px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 18px;
+  --content-padding: 30px;
+  --heading-weight: 650;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --rail: #24291f;
+  --rail-text: #eef3e5;
+  --rail-muted: #b6c0a5;
+  --rail-selected: #37442c;
+  --rail-accent: #c4dea4;
+  --shadow: none;
+}
+:root[data-theme="oil-copilot"] .row-title, :root[data-theme="oil-copilot"] .row-detail { font-family:ui-monospace, "SFMono-Regular", Menlo, "PingFang SC", monospace; }
+:root[data-theme="oil-copilot"] pre { color:#e4ecd7;border-color:#667457; }
+:root[data-theme="oil-copilot"] .provider-mark { background:#dce6ca;color:#42592d;border-radius:3px;font-family:ui-monospace, "SFMono-Regular", Menlo, "PingFang SC", monospace; }
+:root[data-theme="oil-copilot"] .wordmark .brand-mark { color:#b64e2c; }
+
+:root[data-theme="oil-scent"] {
+  color-scheme: light;
+  --canvas: #d1dfd7;
+  --surface: #f8f9f3;
+  --elevated: #e6ece3;
+  --text: #244038;
+  --muted: #4b6154;
+  --border: #b7c9bd;
+  --control-border: #7b9484;
+  --accent: #284e3e;
+  --accent-hover: #1a382b;
+  --on-accent: #ffffff;
+  --selected: #dde9da;
+  --code: #e3eadd;
+  --radius: 1px;
+  --control-radius: 1px;
+  --small-radius: 1px;
+  --row-padding: 28px;
+  --content-padding: 38px;
+  --heading-weight: 400;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif SC", serif;
+  --shadow: none;
+}
+:root[data-theme="oil-scent"] .wordmark { font-family:var(--heading-font);font-weight:400;letter-spacing:.06em; }
+:root[data-theme="oil-scent"] .provider-mark { background:transparent;color:#284e3e;border:1px solid #7b9484;font-family:var(--heading-font);font-weight:400;font-size:24px; }
+:root[data-theme="oil-scent"] .account-row { border-top:4px solid #97afa2; }
+:root[data-theme="oil-scent"] .row-title { font-family:var(--heading-font);font-weight:400;font-size:17px; }
+
+:root[data-theme="oil-upload"] {
+  color-scheme: light;
+  --canvas: #e9e7df;
+  --surface: #ffffff;
+  --elevated: #f0f0e9;
+  --text: #1a1d21;
+  --muted: #5f6269;
+  --border: #dcded8;
+  --control-border: #8d929a;
+  --accent: #2943b5;
+  --accent-hover: #1d318b;
+  --on-accent: #ffffff;
+  --selected: #e2e7fc;
+  --code: #f0f2f5;
+  --radius: 17px;
+  --control-radius: 7px;
+  --small-radius: 4px;
+  --row-padding: 18px;
+  --content-padding: 32px;
+  --heading-weight: 700;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: 0 12px 30px #26324610;
+}
+:root[data-theme="oil-upload"] .provider-mark { height:30px;border-radius:5px;background:#20232a;color:#ffffff;font-family:ui-monospace, "SFMono-Regular", Menlo, "PingFang SC", monospace;font-size:14px; }
+:root[data-theme="oil-upload"] .account-list, :root[data-theme="oil-upload"] .key-list { border-color:#e0e2df; }
+:root[data-theme="oil-upload"] .row-title { font-weight:500; }
+:root[data-theme="oil-upload"] .sidebar button[aria-current="page"] { border-radius:7px; }
+
+:root[data-theme="oil-club"] {
+  color-scheme: light;
+  --canvas: #f4eadc;
+  --surface: #fffcf4;
+  --elevated: #eee5dd;
+  --text: #3c2849;
+  --muted: #6f5d77;
+  --border: #dcd0d8;
+  --control-border: #9b83a5;
+  --accent: #4b2c5b;
+  --accent-hover: #341b42;
+  --on-accent: #ffffff;
+  --selected: #e8dced;
+  --code: #ede4ed;
+  --radius: 24px;
+  --control-radius: 999px;
+  --small-radius: 999px;
+  --row-padding: 25px;
+  --content-padding: 36px;
+  --heading-weight: 750;
+  --app-font: "Trebuchet MS", "PingFang SC", sans-serif;
+  --heading-font: "Trebuchet MS", "PingFang SC", sans-serif;
+  --shadow: none;
+}
+:root[data-theme="oil-club"] .provider-mark { border-radius:15px;background:#ecc5a0;color:#543346;font-size:22px;font-weight:700; }
+:root[data-theme="oil-club"] .account-row:nth-child(even) { background:#f2eaf3; }
+:root[data-theme="oil-club"] .sidebar button { border-radius:999px; }
+:root[data-theme="oil-club"] .row-title { font-size:16px;letter-spacing:-.3px; }
+
+:root[data-theme="oil-vinyl"] {
+  color-scheme: light;
+  --canvas: #e7e8dd;
+  --surface: #faf9f2;
+  --elevated: #e7eadf;
+  --text: #293327;
+  --muted: #5c6755;
+  --border: #c9cfbc;
+  --control-border: #8a977b;
+  --accent: #914d39;
+  --accent-hover: #713927;
+  --on-accent: #ffffff;
+  --selected: #e5ebd9;
+  --code: #e8ecdf;
+  --radius: 16px;
+  --control-radius: 999px;
+  --small-radius: 5px;
+  --row-padding: 26px;
+  --content-padding: 38px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif SC", serif;
+  --shadow: 0 2px 6px #34432e12;
+}
+:root[data-theme="oil-vinyl"] .provider-mark { border-radius:50%;background:#2d3b2c;color:#faf9f2;border:3px solid #aebba4;box-shadow:0 0 0 2px #e5e9dd;font-family:var(--heading-font);font-weight:400; }
+:root[data-theme="oil-vinyl"] .account-list, :root[data-theme="oil-vinyl"] .key-list { box-shadow:inset 0 1px 0 #ffffff,0 3px 8px #33432c14; }
+:root[data-theme="oil-vinyl"] .row-title { font-family:var(--heading-font);font-size:16px;font-weight:500; }
+:root[data-theme="oil-vinyl"] .primary { box-shadow:inset 0 1px 1px #ffffff44,0 2px 4px #54342526; }
+
+:root[data-theme="oil-canvas"] {
+  color-scheme: light;
+  --canvas: #f5f4f8;
+  --surface: #fffcf7;
+  --elevated: #eee9f4;
+  --text: #302a39;
+  --muted: #615569;
+  --border: #cfc7d8;
+  --control-border: #91839d;
+  --accent: #5d436b;
+  --accent-hover: #452d54;
+  --on-accent: #ffffff;
+  --selected: #e2d9ee;
+  --code: #eeebf4;
+  --radius: 2px;
+  --control-radius: 5px;
+  --small-radius: 3px;
+  --row-padding: 25px;
+  --content-padding: 34px;
+  --heading-weight: 700;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: 0 2px 4px #3c304b10;
+}
+:root[data-theme="oil-canvas"] .content { background-image:radial-gradient(#b7aec8 0.65px,transparent 0.65px);background-size:18px 18px; }
+:root[data-theme="oil-canvas"] .account-row:nth-child(3n+1) { background:#fbd9c7; }
+:root[data-theme="oil-canvas"] .account-row:nth-child(3n+2) { background:#e3dcf2; }
+:root[data-theme="oil-canvas"] .account-row:nth-child(3n) { background:#d7eaf4; }
+:root[data-theme="oil-canvas"] .provider-mark { background:#ffffffba;color:#564064;border-radius:50%;font-family:Georgia, "Songti SC", "Noto Serif SC", serif;font-weight:400; }
+
+:root[data-theme="oil-studio"] {
+  color-scheme: light;
+  --canvas: #eff0e8;
+  --surface: #ffffff;
+  --elevated: #e8ebdf;
+  --text: #282d25;
+  --muted: #606b55;
+  --border: #cfd6c5;
+  --control-border: #8a987a;
+  --accent: #9c421c;
+  --accent-hover: #773214;
+  --on-accent: #ffffff;
+  --selected: #f8e0cd;
+  --code: #e8edde;
+  --radius: 4px;
+  --control-radius: 3px;
+  --small-radius: 2px;
+  --row-padding: 18px;
+  --content-padding: 28px;
+  --heading-weight: 800;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --shadow: none;
+}
+:root[data-theme="oil-studio"] .provider-mark { background:#9c421c;color:#ffffff;border-radius:3px;font-family:var(--heading-font);font-size:22px;font-weight:800; }
+:root[data-theme="oil-studio"] .wordmark { font-family:var(--heading-font);font-stretch:condensed;font-weight:800; }
+:root[data-theme="oil-studio"] .account-row { border-left:3px solid #d3aa8f; }
+:root[data-theme="oil-studio"] .row-detail { font-variant-numeric:tabular-nums; }
+
+:root[data-theme="oil-podcast"] {
+  color-scheme: dark;
+  --canvas: #10150f;
+  --surface: #151b13;
+  --elevated: #232c1e;
+  --text: #eeeede;
+  --muted: #b1bba6;
+  --border: #35412c;
+  --control-border: #78886a;
+  --accent: #eaba7a;
+  --accent-hover: #f4d2a1;
+  --on-accent: #1c2417;
+  --selected: #354329;
+  --code: #10170d;
+  --radius: 2px;
+  --control-radius: 999px;
+  --small-radius: 3px;
+  --row-padding: 25px;
+  --content-padding: 38px;
+  --heading-weight: 500;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: Georgia, "Songti SC", "Noto Serif SC", serif;
+  --shadow: none;
+}
+:root[data-theme="oil-podcast"] .provider-mark { border-radius:1px;background:#2d3825;color:#eaba7a;border:1px solid #667855;font-family:var(--heading-font);font-weight:400;font-size:22px; }
+:root[data-theme="oil-podcast"] .row-title { font-family:var(--heading-font);font-size:17px;font-weight:500; }
+:root[data-theme="oil-podcast"] .account-list, :root[data-theme="oil-podcast"] .key-list { border-left:0;border-right:0; }
+:root[data-theme="oil-podcast"] .row-actions button { border-color:transparent; }
+
+:root[data-theme="oil-device"] {
+  color-scheme: light;
+  --canvas: #f0eee4;
+  --surface: #dde2dc;
+  --elevated: #cbd3c9;
+  --text: #252d24;
+  --muted: #4e5d4a;
+  --border: #a5b2a0;
+  --control-border: #75896e;
+  --accent: #923d19;
+  --accent-hover: #702d10;
+  --on-accent: #ffffff;
+  --selected: #cedcc3;
+  --code: #d0d9cc;
+  --radius: 10px;
+  --control-radius: 4px;
+  --small-radius: 2px;
+  --row-padding: 23px;
+  --content-padding: 34px;
+  --heading-weight: 700;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --shadow: inset 0 1px 0 #ffffff,0 3px 0 #a7b3a2;
+}
+:root[data-theme="oil-device"] .provider-mark { background:#3c4938;color:#f2f4e9;border:1px solid #293824;border-radius:4px;box-shadow:inset 0 1px 0 #899981;font-family:ui-monospace, "SFMono-Regular", Menlo, "PingFang SC", monospace; }
+:root[data-theme="oil-device"] .row-actions button { box-shadow:inset 0 1px 0 #ffffff7a,0 2px 0 #a8b59f;border-color:#8b9b81; }
+:root[data-theme="oil-device"] .wordmark { font-family:ui-monospace, "SFMono-Regular", Menlo, "PingFang SC", monospace;letter-spacing:-.5px; }
+:root[data-theme="oil-device"] .account-row { border-top-color:#b5c1ad; }
+
+:root[data-theme="oil-wrapped"] {
+  color-scheme: light;
+  --danger: #75231f;
+  --danger-surface: #ffe4d4;
+  --danger-border: #af6750;
+  --canvas: #e0fa56;
+  --surface: #e7ff62;
+  --elevated: #d5e650;
+  --text: #1d281c;
+  --muted: #3c4930;
+  --border: #526139;
+  --control-border: #617341;
+  --accent: #1e2b1c;
+  --accent-hover: #36462b;
+  --on-accent: #ecff78;
+  --selected: #d2e676;
+  --code: #ddeb67;
+  --radius: 20px;
+  --control-radius: 2px;
+  --small-radius: 2px;
+  --row-padding: 25px;
+  --content-padding: 30px;
+  --heading-weight: 900;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: "Arial Narrow", "Helvetica Neue", "PingFang SC", sans-serif;
+  --shadow: none;
+}
+:root[data-theme="oil-wrapped"] h1, :root[data-theme="oil-wrapped"] .wordmark { font-style:italic;font-weight:900;letter-spacing:-1px; }
+:root[data-theme="oil-wrapped"] .account-row:nth-child(3n+2) { background:#ff9776; }
+:root[data-theme="oil-wrapped"] .provider-mark { background:#24301f;color:#e7ff62;border-radius:50%;font-family:var(--heading-font);font-size:22px;font-weight:900; }
+:root[data-theme="oil-wrapped"] .primary, :root[data-theme="oil-wrapped"] .row-actions button { border-width:2px;font-weight:750; }
+:root[data-theme="oil-wrapped"] .account-row { border:2px solid #39492c; }
+
+:root[data-theme="oil-mail"] {
+  color-scheme: light;
+  --canvas: #e9edef;
+  --surface: #ffffff;
+  --elevated: #f1f3f4;
+  --text: #272e31;
+  --muted: #606c73;
+  --border: #d3dce0;
+  --control-border: #8b9ba4;
+  --accent: #8b481f;
+  --accent-hover: #693412;
+  --on-accent: #ffffff;
+  --selected: #f7e2cd;
+  --code: #edf1f3;
+  --radius: 5px;
+  --control-radius: 4px;
+  --small-radius: 3px;
+  --row-padding: 17px;
+  --content-padding: 30px;
+  --heading-weight: 650;
+  --app-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --heading-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+  --rail: #20272a;
+  --rail-text: #f3f6f6;
+  --rail-muted: #b7c1c6;
+  --rail-selected: #3a454a;
+  --rail-accent: #f2bd8e;
+  --shadow: none;
+}
+:root[data-theme="oil-mail"] .wordmark { font-family:Georgia, "Songti SC", "Noto Serif SC", serif;font-weight:400;font-size:22px;letter-spacing:-1px; }
+:root[data-theme="oil-mail"] .provider-mark { border-radius:50%;background:#edf0ef;color:#5c6b70;font-family:Georgia, "Songti SC", "Noto Serif SC", serif;font-weight:400; }
+:root[data-theme="oil-mail"] .account-row:hover { background:#f9ebdc; }
+:root[data-theme="oil-mail"] .row-title { font-weight:550; }
+
+@media (max-width: 700px) {
+  :root[data-theme="oil-freight"] .row-actions { border-left: 0; padding-left: 0; }
+}

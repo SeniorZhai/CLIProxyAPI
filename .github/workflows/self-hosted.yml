@@ -24,7 +24,7 @@ jobs:
       - name: Test
         run: |
           go test ./...
-          node --test internal/admin/static/admin.test.mjs
+          node --test internal/admin/static/*.test.mjs
           go build -o test-output ./cmd/server
           rm test-output
       - name: Build and start a fresh Linux deployment

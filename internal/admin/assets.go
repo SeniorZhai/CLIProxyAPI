@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:embed static/index.html static/admin.css static/admin.js
+//go:embed static/index.html static/admin.css static/admin.js static/theme.js static/oil.css
 var assets embed.FS
 
 func ServeAsset(c *gin.Context) {
@@ -18,8 +18,12 @@ func ServeAsset(c *gin.Context) {
 		name, contentType = "index.html", "text/html; charset=utf-8"
 	case "/admin.css":
 		name, contentType = "admin.css", "text/css; charset=utf-8"
+	case "/oil.css":
+		name, contentType = "oil.css", "text/css; charset=utf-8"
 	case "/admin.js":
 		name, contentType = "admin.js", "text/javascript; charset=utf-8"
+	case "/theme.js":
+		name, contentType = "theme.js", "text/javascript; charset=utf-8"
 	default:
 		c.AbortWithStatus(http.StatusNotFound)
 		return

@@ -3,14 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
   <title>CLIProxyAPI 管理</title>
+  <script src="/admin/theme.js"></script>
   <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="stylesheet" href="/admin/oil.css">
   <script type="module" src="/admin/admin.js"></script>
 </head>
 <body>
   <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
   <main id="login-view" class="login-view">
+    <div class="login-appearance">
+      <label class="theme-picker"><span class="theme-label">外观</span><select data-theme-select aria-label="选择登录页皮肤">
+        <option value="system">跟随系统</option><option value="jade">玉白 · 浅色</option><option value="graphite">石墨 · 深色</option><option value="paper">砂纸 · 暖色</option><option value="night">午夜 · 蓝紫</option>
+      </select></label>
+    </div>
     <section class="login-card" aria-labelledby="login-title">
       <div class="wordmark">CLIProxyAPI<span class="brand-mark" aria-hidden="true">/</span></div>
       <h1 id="login-title">欢迎回来</h1>
@@ -30,11 +37,15 @@
   <div id="app-view" hidden>
     <header class="topbar">
       <div class="wordmark">CLIProxyAPI<span class="brand-mark" aria-hidden="true">/</span></div>
-      <div class="account-menu"><span id="admin-name"></span><button id="change-password" class="text-button">修改密码</button><button id="logout" class="text-button">退出</button></div>
+      <div class="account-menu">
+        <label class="theme-picker"><span class="theme-label">外观</span><select data-theme-select aria-label="选择管理台皮肤">
+          <option value="system">跟随系统</option><option value="jade">玉白 · 浅色</option><option value="graphite">石墨 · 深色</option><option value="paper">砂纸 · 暖色</option><option value="night">午夜 · 蓝紫</option>
+        </select></label>
+        <span id="admin-name"></span><button id="change-password" class="text-button">修改密码</button><button id="logout" class="text-button">退出</button>
+      </div>
     </header>
     <div class="layout">
       <nav class="sidebar" aria-label="管理导航">
-        <p class="nav-caption">管理</p>
         <button data-view="accounts" aria-current="page">上游账号 <span id="account-count">0</span></button>
         <button data-view="keys">设备 Key <span id="key-count">0</span></button>
         <button data-view="connect">客户端接入</button>
@@ -42,7 +53,7 @@
       </nav>
       <main class="content">
         <section id="accounts-view" class="view" aria-labelledby="accounts-title">
-          <div class="page-heading"><div><h1 id="accounts-title">上游账号</h1><p class="muted">集中连接你的 AI 服务，所有设备共用这些账号。</p></div><div class="actions"><button id="import-account">导入凭据</button><button id="add-account" class="primary">添加账号</button></div></div>
+          <div class="page-heading"><div><h1 id="accounts-title">上游账号</h1><p class="muted">所有设备共用这些账号。</p></div><div class="actions"><button id="import-account">导入凭据</button><button id="add-account" class="primary">添加账号</button></div></div>
           <input type="file" id="auth-file" accept=".json,application/json" multiple hidden>
           <div class="toolbar"><label class="sr-only" for="account-search">搜索账号</label><input type="search" id="account-search" placeholder="搜索账号或服务商"><button id="reload-accounts" class="text-button">刷新列表</button></div>
           <div id="account-list" class="account-list" aria-live="polite"></div>
