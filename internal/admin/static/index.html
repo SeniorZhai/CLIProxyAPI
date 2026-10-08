@@ -66,11 +66,23 @@
         <section id="connect-view" class="view" hidden aria-labelledby="connect-title">
           <div class="page-heading"><div><h1 id="connect-title">客户端接入</h1><p class="muted">复制配置到设备，代码读写和命令执行仍在本地完成。</p></div></div>
           <div class="connection-panel">
+            <h2>如何配置</h2>
+            <ol>
+              <li>在“上游账号”中添加并启用账号，完成提供商授权。</li>
+              <li>在“设备 Key”中为当前设备生成 Key，再回到此页选择它。</li>
+              <li>选择客户端和模型，复制下方配置到设备使用。默认优先选择 gpt-6-astra，Codex 推理强度为 medium；其他客户端请选择对应账号支持的模型。</li>
+            </ol>
             <label for="api-base">OpenAI 兼容地址</label><div class="input-action"><input id="api-base" readonly><button id="copy-base">复制</button></div>
             <div class="form-grid"><div><label for="connect-key">设备 Key</label><select id="connect-key"></select></div><div><label for="connect-model">模型</label><input id="connect-model" list="model-options" placeholder="选择或输入模型 ID"><datalist id="model-options"></datalist></div></div>
             <p id="model-hint" class="muted"></p>
             <div class="snippet-heading"><div class="tabs" role="group" aria-label="客户端类型"><button data-client="codex" aria-pressed="true">Codex CLI</button><button data-client="openai" aria-pressed="false">OpenAI</button><button data-client="claude" aria-pressed="false">Claude Code</button><button data-client="gemini" aria-pressed="false">Gemini</button></div><button id="copy-snippet">复制配置</button></div>
             <p id="snippet-help" class="muted"></p><pre><code id="client-snippet"></code></pre>
+            <details id="codex-config">
+              <summary>Codex：保存为默认配置</summary>
+              <p class="muted">将下列配置合并到 ~/.codex/config.toml，替换已有的同名配置项。顶层配置项应放在任何 [表名] 之前。每次打开终端后，先执行上方的 export CPA_API_KEY 命令，再运行 codex；需要长期保存环境变量时，可将 export 命令加入自己的 Shell 启动文件（如 ~/.zshrc）。</p>
+              <pre><code id="codex-config-snippet"></code></pre>
+              <p class="muted">设备 Key 用于客户端调用，上游账号授权在服务器管理。请勿将含 Key 的命令或启动文件提交到代码仓库。</p>
+            </details>
           </div>
         </section>
       </main>

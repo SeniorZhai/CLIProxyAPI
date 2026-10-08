@@ -263,7 +263,7 @@ async function loadModels() {
     state.models = models.map((model) => model.id);
     for (const model of models) $('model-options').append(new Option(model.id, model.id));
     if (!state.customModel) {
-      state.preferredModel = state.models.includes(state.preferredModel) ? state.preferredModel : state.models[0] || '';
+      state.preferredModel = state.models.includes(state.preferredModel) ? state.preferredModel : state.models.find((model) => model === 'gpt-6-astra') || state.models[0] || '';
       $('connect-model').value = state.preferredModel;
     }
     $('model-hint').textContent = models.length ? `已发现 ${models.length} 个模型，也可以手动输入模型 ID。` : '尚未发现模型，请先连接并启用上游账号。';
@@ -281,12 +281,14 @@ function renderSnippet() {
   const key = selectedKey();
   const base = state.session.base_url;
   const model = $('connect-model').value.trim() || '<MODEL_ID>';
+  $('codex-config').hidden = state.client !== 'codex' || !key;
   $('copy-snippet').disabled = !key;
   if (!key) { $('client-snippet').textContent = '先在“设备 Key”页面生成一个 Key。'; return; }
   let snippet;
   if (state.client === 'codex') {
     const settings = [
       'model_provider="cliproxy"', `model=${JSON.stringify(model)}`,
+      'model_reasoning_effort="medium"',
       'model_providers.cliproxy.name="CLIProxyAPI"',
       `model_providers.cliproxy.base_url=${JSON.stringify(`${base}/v1`)}`,
       'model_providers.cliproxy.env_key="CPA_API_KEY"',
@@ -294,7 +296,8 @@ function renderSnippet() {
       'model_providers.cliproxy.requires_openai_auth=false',
     ];
     snippet = `export CPA_API_KEY=${shellQuote(key)}\ncodex \\\n${settings.map((setting) => `  -c ${shellQuote(setting)}`).join(' \\\n')}`;
-    $('snippet-help').textContent = '在设备终端运行。需要固定配置时，可将这些 -c 配置项合并到 ~/.codex/config.toml，并保留 CPA_API_KEY 环境变量。';
+    $('codex-config-snippet').textContent = settings.join('\n');
+    $('snippet-help').textContent = '安装 Codex CLI 后，在 macOS / Linux 的 Bash 或 Zsh 终端运行下方命令，即可使用所选设备 Key 和模型，推理强度为 medium。此命令仅对本次启动生效；长期使用可展开下方“保存为默认配置”。';
   } else if (state.client === 'claude') {
     snippet = `export ANTHROPIC_BASE_URL=${shellQuote(base)}\nexport ANTHROPIC_AUTH_TOKEN=${shellQuote(key)}\nexport ANTHROPIC_MODEL=${shellQuote(model)}\nclaude`;
     $('snippet-help').textContent = '在运行 Claude Code 的终端设置以下环境变量。';

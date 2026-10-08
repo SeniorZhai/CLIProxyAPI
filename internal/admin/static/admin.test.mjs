@@ -341,6 +341,24 @@ test('a device API rejection does not expire the administrator web session', asy
   assert.match(app.node('client-snippet').textContent, /cpa_test_device_key/);
 });
 
+test('Codex defaults to Astra medium and keeps saved configuration in sync with model selection', async () => {
+  const app = await browser(({ path }) => path === '/v1/models'
+    ? { body: { data: [{ id: 'other-model' }, { id: 'gpt-6-astra' }] } } : undefined);
+  assert.equal(app.node('connect-model').value, 'gpt-6-astra');
+  assert.match(app.node('client-snippet').textContent, /model="gpt-6-astra"/);
+  assert.match(app.node('client-snippet').textContent, /model_reasoning_effort="medium"/);
+  assert.equal(app.node('codex-config').hidden, false);
+  assert.match(app.node('codex-config-snippet').textContent, /model="gpt-6-astra"\nmodel_reasoning_effort="medium"/);
+  assert.doesNotMatch(app.node('codex-config-snippet').textContent, /cpa_test_device_key/);
+  app.node('connect-model').value = 'other-model';
+  await app.node('connect-model').emit('input');
+  await app.node('reload-accounts').click();
+  assert.equal(app.node('connect-model').value, 'other-model');
+  assert.match(app.node('codex-config-snippet').textContent, /model="other-model"/);
+  await app.client('openai').click();
+  assert.equal(app.node('codex-config').hidden, true);
+});
+
 test('client snippets use the selected device key, correct API conventions, and shell quoting', async () => {
   const app = await browser();
   assert.equal(app.node('api-base').value, 'https://proxy.example/v1');
