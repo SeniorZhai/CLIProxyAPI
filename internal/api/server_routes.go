@@ -66,6 +66,10 @@ func (s *Server) setupRoutes() {
 	v1 := s.engine.Group("/v1")
 	v1.Use(AuthMiddleware(s.accessManager))
 	{
+		v1.GET("/quota-summary", s.quotaSummary)
+		v1.GET("/magpie/quotas/cards", s.magpieQuotaCards)
+		v1.POST("/magpie/quotas/refresh", s.magpieQuotaCards)
+		v1.GET("/magpie/limit", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"limited": false}) })
 		v1.GET("/models", s.unifiedModelsHandler(openaiHandlers, claudeCodeHandlers))
 		v1.GET("/models/*model", func(c *gin.Context) {
 			c.Set(handlers.ModelDetailIDContextKey, strings.TrimPrefix(c.Param("model"), "/"))

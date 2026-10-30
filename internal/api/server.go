@@ -55,6 +55,7 @@ type Server struct {
 	// handlers contains the API handlers for processing requests.
 	handlers         *handlers.BaseAPIHandler
 	codexLiveHandler *codexlive.Handler
+	magpieUsage      magpieUsageCache
 
 	// cfg holds the current server configuration.
 	cfgMu sync.RWMutex
