@@ -8,13 +8,23 @@ import (
 
 // Manager coordinates authentication providers.
 type Manager struct {
-	mu        sync.RWMutex
-	providers []Provider
+	mu                 sync.RWMutex
+	providers          []Provider
+	requireCredentials bool
 }
 
 // NewManager constructs an empty manager.
 func NewManager() *Manager {
 	return &Manager{}
+}
+
+func (m *Manager) SetRequireCredentials(required bool) {
+	if m == nil {
+		return
+	}
+	m.mu.Lock()
+	m.requireCredentials = required
+	m.mu.Unlock()
 }
 
 // SetProviders replaces the active provider list.
@@ -46,8 +56,14 @@ func (m *Manager) Authenticate(ctx context.Context, r *http.Request) (*Result, *
 	if m == nil {
 		return nil, nil
 	}
-	providers := m.Providers()
+	m.mu.RLock()
+	providers := append([]Provider(nil), m.providers...)
+	required := m.requireCredentials
+	m.mu.RUnlock()
 	if len(providers) == 0 {
+		if required {
+			return nil, NewNoCredentialsError()
+		}
 		return nil, nil
 	}
 

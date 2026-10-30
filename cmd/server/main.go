@@ -19,6 +19,7 @@ import (
 
 	"github.com/joho/godotenv"
 	configaccess "github.com/router-for-me/CLIProxyAPI/v8/internal/access/config_access"
+	"github.com/router-for-me/CLIProxyAPI/v8/internal/admin"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/api"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/buildinfo"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/cmd"
@@ -131,6 +132,7 @@ func main() {
 	var homeDisableClusterDiscovery bool
 	var tuiMode bool
 	var standalone bool
+	var resetAdminPassword bool
 	var managementBaseURL string
 	var localModel bool
 
@@ -161,6 +163,7 @@ func main() {
 	flag.BoolVar(&homeDisableClusterDiscovery, "home-disable-cluster-discovery", false, "Disable Home CLUSTER NODES discovery and keep using the configured -home-jwt address")
 	flag.BoolVar(&tuiMode, "tui", false, "Start with terminal management UI")
 	flag.BoolVar(&standalone, "standalone", false, "In TUI mode, start an embedded local server")
+	flag.BoolVar(&resetAdminPassword, "reset-admin-password", false, "Reset the local web administrator password (stop the server first)")
 	flag.StringVar(&managementBaseURL, "management-base-url", "", "Base URL of remote management API for TUI client mode (e.g. https://proxy.example.com)")
 	flag.BoolVar(&localModel, "local-model", false, "Use embedded model catalogs unless models.catalog, models.codex-catalog, or models.devin-catalog explicitly overrides the source")
 
@@ -340,6 +343,43 @@ func main() {
 	// Determine and load the configuration file.
 	// Prefer the Postgres store when configured, otherwise fallback to git or local files.
 	var configFilePath string
+	autoSetup := false
+	if value := strings.TrimSpace(os.Getenv("CPA_AUTO_SETUP")); value != "" {
+		var errAutoSetup error
+		autoSetup, errAutoSetup = strconv.ParseBool(value)
+		if errAutoSetup != nil {
+			log.Error("CPA_AUTO_SETUP must be a boolean")
+			os.Exit(1)
+		}
+	}
+	if autoSetup && !resetAdminPassword {
+		if homeJWT != "" || usePostgresStore || useGitStore || useObjectStore || isCloudDeploy {
+			log.Error("CPA_AUTO_SETUP requires standalone local file storage")
+			os.Exit(1)
+		}
+		bootstrapPath := configPath
+		if bootstrapPath == "" {
+			bootstrapPath = filepath.Join(wd, "config.yaml")
+		}
+		var trustedProxies []string
+		if value := os.Getenv("CPA_TRUSTED_PROXIES"); value != "" {
+			trustedProxies = strings.Split(value, ",")
+			for i := range trustedProxies {
+				trustedProxies[i] = strings.TrimSpace(trustedProxies[i])
+			}
+		}
+		initialPath, errBootstrap := admin.Bootstrap(bootstrapPath, admin.BootstrapOptions{
+			PublicURL: os.Getenv("CPA_PUBLIC_URL"), Username: os.Getenv("CPA_ADMIN_USERNAME"), Password: os.Getenv("CPA_ADMIN_PASSWORD"),
+			TrustedProxies: trustedProxies,
+		})
+		if errBootstrap != nil {
+			log.WithError(errBootstrap).Error("failed to initialize self-hosted administrator")
+			os.Exit(1)
+		}
+		if initialPath != "" {
+			log.WithField("path", initialPath).Info("initial administrator credentials are available locally until the first login")
+		}
+	}
 	if strings.TrimSpace(homeJWT) != "" {
 		configLoadedFromHome = true
 		ctxHome, cancelHome := context.WithTimeout(context.Background(), 30*time.Second)
@@ -598,10 +638,36 @@ func main() {
 	}
 	if err != nil {
 		log.Errorf("failed to load config: %v", err)
+		if autoSetup || resetAdminPassword {
+			os.Exit(1)
+		}
 		return
 	}
 	if cfg == nil {
 		cfg = &config.Config{}
+	}
+	if cfg.RemoteManagement.Admin.Enabled || resetAdminPassword {
+		if configLoadedFromHome || usePostgresStore || useGitStore || useObjectStore {
+			log.Error("web administrator initialization requires standalone local file storage")
+			os.Exit(1)
+		}
+		var initialPath string
+		var errAdmin error
+		if resetAdminPassword {
+			initialPath, errAdmin = admin.ResetPassword(cfg.RemoteManagement.Admin, configFilePath)
+		} else {
+			initialPath, errAdmin = admin.Initialize(cfg.RemoteManagement.Admin, configFilePath, os.Getenv("CPA_ADMIN_USERNAME"), os.Getenv("CPA_ADMIN_PASSWORD"))
+		}
+		if errAdmin != nil {
+			log.WithError(errAdmin).Error("failed to prepare web administrator")
+			os.Exit(1)
+		}
+		if initialPath != "" {
+			log.WithField("path", initialPath).Info("initial administrator credentials are available locally until the first login")
+		}
+		if resetAdminPassword {
+			return
+		}
 	}
 
 	// In cloud deploy mode, check if we have a valid configuration

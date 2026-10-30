@@ -85,6 +85,7 @@ func ApplyAccessProviders(manager *sdkaccess.Manager, oldCfg, newCfg *config.Con
 	}
 
 	existing := manager.Providers()
+	manager.SetRequireCredentials(newCfg.RemoteManagement.Admin.Enabled)
 	configaccess.Register(&newCfg.SDKConfig)
 	providers, added, updated, removed, err := ReconcileProviders(oldCfg, newCfg, existing)
 	if err != nil {

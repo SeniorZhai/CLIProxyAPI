@@ -2,6 +2,8 @@
 
 [English](README.md) | 中文 | [日本語](README_JA.md)
 
+本 fork 新增自托管管理入口：首次部署自动生成管理员账号密码，在网页配置上游账号并生成长期有效的设备 Key。支持与 sub2 并行部署，参见 [Linux 部署与使用说明](deploy/README.md)。网页登录有效期为 30 天，设备 Key 不受退出、改密或重启影响。
+
 如果您想在您的桌面使用 CLIProxyAPI，我们推荐您使用我们的 [EasyCLIProxyAPI](https://github.com/router-for-me/EasyCLIProxyAPI) 桌面客户端，该客户端提供了图形化的配置界面、自动更新、系统托盘集成、一键启动/关闭 CLIProxyAPI 服务等功能。
 
 CLIProxyAPI 是一个为 CLI 提供 OpenAI/Gemini/Claude/Codex/Grok 兼容 API 接口的代理服务器。

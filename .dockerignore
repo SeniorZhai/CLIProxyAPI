@@ -20,6 +20,17 @@ auths
 logs
 conv
 config.yaml
+admin
+deploy/data
+**/.env
+**/.env.*
+pgstore
+gitstore
+objectstore
+test-output
+AGENTS.md
+CLAUDE.md
+GEMINI.md
 
 # Development/editor
 bin

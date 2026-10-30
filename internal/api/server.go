@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/router-for-me/CLIProxyAPI/v8/internal/admin"
 	managementHandlers "github.com/router-for-me/CLIProxyAPI/v8/internal/api/handlers/management"
 	"github.com/router-for-me/CLIProxyAPI/v8/internal/api/middleware"
 	codexlive "github.com/router-for-me/CLIProxyAPI/v8/internal/client/codex/live"
@@ -85,7 +86,10 @@ type Server struct {
 	wsAuthEnabled atomic.Bool
 
 	// management handler
-	mgmt *managementHandlers.Handler
+	mgmt                         *managementHandlers.Handler
+	admin                        *admin.Manager
+	adminErr                     error
+	managementV8RoutesRegistered atomic.Bool
 
 	// pluginHost owns dynamic plugin Management API route dispatch.
 	pluginHost *pluginhost.Host
@@ -123,6 +127,9 @@ type Server struct {
 func NewServer(cfg *config.Config, authManager *auth.Manager, accessManager *sdkaccess.Manager, configFilePath string, opts ...ServerOption) *Server {
 	if cfg != nil {
 		cfg = cfg.CloneForRuntime()
+	}
+	if cfg.RemoteManagement.Admin.Enabled && accessManager == nil {
+		accessManager = sdkaccess.NewManager()
 	}
 	optionState := &serverOptionConfig{
 		requestLoggerFactory: defaultRequestLoggerFactory,
@@ -200,7 +207,7 @@ func NewServer(cfg *config.Config, authManager *auth.Manager, accessManager *sdk
 	engine.Use(corsMiddleware())
 	engine.Use(s.responseCompressionMiddleware())
 	openai.SetResponsesWebsocketCompressionEnabled(cfg.Codex.WebsocketCompressionEnabled())
-	s.wsAuthEnabled.Store(cfg.WebsocketAuth)
+	s.wsAuthEnabled.Store(cfg.WebsocketAuth || cfg.RemoteManagement.Admin.Enabled)
 	s.exampleAPIKeySafeModeActive.Store(s.exampleAPIKeySafeModeRequired(cfg))
 	s.handlers.SetPluginHost(optionState.pluginHost)
 	if optionState.pluginHost != nil {
@@ -221,6 +228,10 @@ func NewServer(cfg *config.Config, authManager *auth.Manager, accessManager *sdk
 	applyClaudeToolSearchConfig(cfg)
 	// Initialize management handler
 	s.mgmt = managementHandlers.NewHandler(cfg, configFilePath, authManager)
+	s.mgmt.SetAccessManager(accessManager)
+	if cfg.RemoteManagement.Admin.Enabled {
+		s.admin, s.adminErr = admin.Open(cfg.RemoteManagement.Admin, configFilePath)
+	}
 	s.mgmt.SetPluginHost(optionState.pluginHost)
 	s.mgmt.SetConfigReloadHook(optionState.configReloadHook)
 	if optionState.localPassword != "" {
@@ -243,6 +254,7 @@ func NewServer(cfg *config.Config, authManager *auth.Manager, accessManager *sdk
 
 	// Setup routes
 	s.setupRoutes()
+	s.setupAdminRoutes()
 
 	// Apply additional router configurators from options
 	if optionState.routerConfigurator != nil {
@@ -256,6 +268,9 @@ func NewServer(cfg *config.Config, authManager *auth.Manager, accessManager *sdk
 	redisqueue.SetEnabled(hasManagementSecret || (cfg != nil && cfg.Home.Enabled))
 	if hasManagementSecret {
 		s.registerManagementRoutes()
+	}
+	if s.admin != nil {
+		s.registerManagementV8Routes()
 	}
 	s.refreshPluginManagementRoutes()
 	engine.NoRoute(s.pluginManagementNoRoute)
@@ -299,6 +314,9 @@ func (s *Server) Handler() http.Handler {
 func (s *Server) Start() error {
 	if s == nil || s.server == nil {
 		return fmt.Errorf("failed to start HTTP server: server not initialized")
+	}
+	if s.adminErr != nil {
+		return fmt.Errorf("failed to load web administrator: %w", s.adminErr)
 	}
 
 	addr := s.server.Addr

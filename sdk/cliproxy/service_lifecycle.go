@@ -173,28 +173,34 @@ func (s *Service) Run(ctx context.Context) error {
 		s.hooks.OnBeforeStart(s.currentConfig())
 	}
 
-	s.serverErr = make(chan error, 1)
-	go func() {
-		if errStart := s.server.Start(); errStart != nil {
-			s.serverErr <- errStart
-		} else {
-			s.serverErr <- nil
+	adminEnabled := cfg.RemoteManagement.Admin.Enabled
+	startServer := func() {
+		s.serverErr = make(chan error, 1)
+		go func() {
+			if errStart := s.server.Start(); errStart != nil {
+				s.serverErr <- errStart
+			} else {
+				s.serverErr <- nil
+			}
+		}()
+
+		time.Sleep(100 * time.Millisecond)
+		if currentCfg := s.currentConfig(); currentCfg != nil {
+			fmt.Printf("API server started successfully on: %s:%d\n", currentCfg.Host, currentCfg.Port)
 		}
-	}()
 
-	time.Sleep(100 * time.Millisecond)
-	if currentCfg := s.currentConfig(); currentCfg != nil {
-		fmt.Printf("API server started successfully on: %s:%d\n", currentCfg.Host, currentCfg.Port)
+		s.configRuntimeMu.Lock()
+		currentCfg := s.currentConfig()
+		s.applyPprofConfig(currentCfg)
+		s.applyDiscoveryConfig(currentCfg)
+		s.configRuntimeMu.Unlock()
+
+		if s.hooks.OnAfterStart != nil {
+			s.hooks.OnAfterStart(s)
+		}
 	}
-
-	s.configRuntimeMu.Lock()
-	currentCfg := s.currentConfig()
-	s.applyPprofConfig(currentCfg)
-	s.applyDiscoveryConfig(currentCfg)
-	s.configRuntimeMu.Unlock()
-
-	if s.hooks.OnAfterStart != nil {
-		s.hooks.OnAfterStart(s)
+	if !adminEnabled {
+		startServer()
 	}
 
 	if !homeEnabled {
@@ -228,6 +234,10 @@ func (s *Service) Run(ctx context.Context) error {
 		s.configRuntimeMu.Lock()
 		s.syncPluginModelRuntime(ctx)
 		s.configRuntimeMu.Unlock()
+	}
+	if adminEnabled {
+		// Key mutations must not race with the watcher's initial configuration snapshot.
+		startServer()
 	}
 
 	s.registerModelRefreshCallback()

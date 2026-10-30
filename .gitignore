@@ -5,6 +5,8 @@ cli-proxy-api
 # Configuration
 config.yaml
 .env
+/admin/
+/deploy/data/
 
 # Generated content
 bin/*

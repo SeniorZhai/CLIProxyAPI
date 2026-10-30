@@ -56,6 +56,10 @@ func (s *Server) UpdateClientsContext(ctx context.Context, cfg *config.Config) b
 		return false
 	}
 	cfg = cfg.CloneForRuntime()
+	if current := s.getConfig(); current != nil && current.RemoteManagement.Admin != cfg.RemoteManagement.Admin {
+		log.Error("management.admin changes require a server restart")
+		return false
+	}
 	// Reconstruct old config from YAML snapshot to avoid reference sharing issues
 	var oldCfg *config.Config
 	s.cfgMu.RLock()
@@ -183,7 +187,7 @@ func (s *Server) UpdateClientsContext(ctx context.Context, cfg *config.Config) b
 			log.WithError(errUpdate).Error("failed to update Codex Live media relay configuration")
 		}
 	}
-	s.wsAuthEnabled.Store(cfg.WebsocketAuth)
+	s.wsAuthEnabled.Store(cfg.WebsocketAuth || cfg.RemoteManagement.Admin.Enabled)
 	openai.SetResponsesWebsocketCompressionEnabled(cfg.Codex.WebsocketCompressionEnabled())
 	if oldCfg != nil && s.wsAuthChanged != nil && oldCfg.WebsocketAuth != cfg.WebsocketAuth {
 		s.wsAuthChanged(oldCfg.WebsocketAuth, cfg.WebsocketAuth)

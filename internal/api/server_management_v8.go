@@ -10,12 +10,15 @@ import (
 // registerManagementV8Routes defines the v8 contract independently of v0.
 // Configuration paths mirror the v8 YAML tree; operational routes use its groups.
 func (s *Server) registerManagementV8Routes() {
+	if !s.managementV8RoutesRegistered.CompareAndSwap(false, true) {
+		return
+	}
 	const prefix = "/v8/management"
-	s.engine.GET(prefix+"/oauth/callback", s.managementAvailabilityMiddleware(), s.mgmt.GetOAuthCallbackV8)
-	s.engine.POST(prefix+"/oauth/callback", s.managementAvailabilityMiddleware(), s.mgmt.PostOAuthCallbackV8)
+	s.engine.GET(prefix+"/oauth/callback", s.managementV8AvailabilityMiddleware(), s.mgmt.GetOAuthCallbackV8)
+	s.engine.POST(prefix+"/oauth/callback", s.managementV8AvailabilityMiddleware(), s.mgmt.PostOAuthCallbackV8)
 
 	v8 := s.engine.Group(prefix)
-	v8.Use(s.managementAvailabilityMiddleware(), s.mgmt.Middleware(), func(c *gin.Context) {
+	v8.Use(s.managementV8AvailabilityMiddleware(), s.managementV8AuthMiddleware(), func(c *gin.Context) {
 		c.Set(management.ConfigV8ContextKey, true)
 	})
 	v8.GET("/config", s.mgmt.ConfigV8)
@@ -43,6 +46,9 @@ func (s *Server) registerManagementV8Routes() {
 	v8.GET("/observability/usage/queue", s.mgmt.GetUsageQueue)
 
 	v8.GET("/credentials", s.mgmt.ListAuthFiles)
+	v8.GET("/client-keys", s.mgmt.ListClientKeys)
+	v8.POST("/client-keys", s.mgmt.CreateClientKey)
+	v8.DELETE("/client-keys/:id", s.mgmt.DeleteClientKey)
 	v8.POST("/credentials", s.mgmt.UploadAuthFileV8)
 	v8.DELETE("/credentials", s.mgmt.DeleteAuthFileV8)
 	v8.GET("/credentials/models", s.mgmt.GetAuthFileModels)
