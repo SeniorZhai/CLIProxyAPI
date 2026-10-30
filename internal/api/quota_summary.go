@@ -139,8 +139,8 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 			continue
 		}
 		var probeError string
-		if snapshot.Provider == "codex" && !snapshot.Disabled && snapshot.Status != auth.StatusDisabled {
-			snapshot.Quota, probeError = s.magpieCodexUsage(c.Request.Context(), snapshot, c.Request.Method == http.MethodPost)
+		if !snapshot.Disabled && snapshot.Status != auth.StatusDisabled {
+			snapshot.Quota, probeError = s.probeMagpieUsage(c.Request.Context(), snapshot, c.Request.Method == http.MethodPost)
 		}
 		card := magpieQuotaCard{
 			Provider: snapshot.Provider,
@@ -220,6 +220,9 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 					card.Windows = append(card.Windows, magpieQuotaWindow{Name: label + name, Used: *window.UsedPercent, ResetsAt: window.ResetAt})
 				}
 			}
+		}
+		if snapshot.Provider == "xai" {
+			card.Windows = magpieXAIWindows(snapshot.Quota)
 		}
 		switch {
 		case snapshot.Disabled || snapshot.Status == auth.StatusDisabled:

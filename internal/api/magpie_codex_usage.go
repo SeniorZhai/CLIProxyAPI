@@ -32,7 +32,7 @@ type magpieUsageEntry struct {
 }
 
 // The cache never writes observations or credentials back to the auth manager.
-func (s *Server) magpieCodexUsage(ctx context.Context, snapshot *auth.Auth, force bool) (auth.QuotaState, string) {
+func (s *Server) probeMagpieUsage(ctx context.Context, snapshot *auth.Auth, force bool) (auth.QuotaState, string) {
 	token, _ := snapshot.Metadata["access_token"].(string)
 	if strings.TrimSpace(token) == "" {
 		return snapshot.Quota, ""
@@ -83,8 +83,14 @@ func (s *Server) magpieCodexUsage(ctx context.Context, snapshot *auth.Auth, forc
 		}
 		defer transport.CloseIdleConnections()
 		client := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
-		accountID, _ := snapshot.Metadata["account_id"].(string)
-		quota, queryError := fetchMagpieCodexUsage(ctx, client, token, accountID)
+		var quota auth.QuotaState
+		var queryError string
+		if snapshot.Provider == "xai" {
+			quota, queryError = fetchMagpieXAIUsage(ctx, client, token)
+		} else {
+			accountID, _ := snapshot.Metadata["account_id"].(string)
+			quota, queryError = fetchMagpieCodexUsage(ctx, client, token, accountID)
+		}
 		entry.error = queryError
 		if queryError == "" {
 			entry.quota = quota

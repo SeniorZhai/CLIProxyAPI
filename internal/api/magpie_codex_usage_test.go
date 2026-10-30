@@ -93,14 +93,14 @@ func TestMagpieCodexUsageCache(t *testing.T) {
 	server := newTestServer(t)
 	a := &auth.Auth{ID: "one", Provider: "codex", Status: auth.StatusActive, CredentialVersion: 1, Metadata: map[string]any{"access_token": "test-token", "account_id": "test-account"}}
 	original := a.Clone()
-	first, errText := server.magpieCodexUsage(context.Background(), a, false)
+	first, errText := server.probeMagpieUsage(context.Background(), a, false)
 	if errText != "" || first.Signals["X-Codex-Primary-Used-Percent"] != "92" || calls.Load() != 1 {
 		t.Fatal("cold fetch failed")
 	}
 	var wg sync.WaitGroup
 	for range 8 {
 		wg.Add(1)
-		go func() { defer wg.Done(); server.magpieCodexUsage(context.Background(), a, false) }()
+		go func() { defer wg.Done(); server.probeMagpieUsage(context.Background(), a, false) }()
 	}
 	wg.Wait()
 	if calls.Load() != 1 {
@@ -108,45 +108,45 @@ func TestMagpieCodexUsageCache(t *testing.T) {
 	}
 	entry := server.magpieUsage.entries[a.ID]
 	entry.attempted = time.Now().Add(-29 * time.Second)
-	throttled, errText := server.magpieCodexUsage(context.Background(), a, true)
+	throttled, errText := server.probeMagpieUsage(context.Background(), a, true)
 	if calls.Load() != 1 || errText != "" || !reflect.DeepEqual(throttled, first) {
 		t.Fatal("refresh within 30 seconds must return cached observation")
 	}
 	entry.attempted = time.Now().Add(-31 * time.Second)
-	server.magpieCodexUsage(context.Background(), a, true)
+	server.probeMagpieUsage(context.Background(), a, true)
 	if calls.Load() != 2 {
 		t.Fatal("refresh did not request usage")
 	}
 	status.Store(401)
 	entry.attempted = time.Now().Add(-31 * time.Second)
-	kept, errText := server.magpieCodexUsage(context.Background(), a, true)
+	kept, errText := server.probeMagpieUsage(context.Background(), a, true)
 	if errText != "Quota query returned HTTP 401" || !reflect.DeepEqual(first.Signals, kept.Signals) || kept.ObservedAt.IsZero() {
 		t.Fatal("failure discarded observation")
 	}
 	before := calls.Load()
-	_, errText = server.magpieCodexUsage(context.Background(), a, false)
+	_, errText = server.probeMagpieUsage(context.Background(), a, false)
 	if calls.Load() != before || errText == "" {
 		t.Fatal("failure was not cached")
 	}
-	_, errText = server.magpieCodexUsage(context.Background(), a, true)
+	_, errText = server.probeMagpieUsage(context.Background(), a, true)
 	if calls.Load() != before || errText != "Quota query returned HTTP 401" {
 		t.Fatal("failed refresh must also be throttled for 30 seconds")
 	}
 	status.Store(302)
 	entry.attempted = time.Now().Add(-31 * time.Second)
-	_, errText = server.magpieCodexUsage(context.Background(), a, true)
+	_, errText = server.probeMagpieUsage(context.Background(), a, true)
 	if errText != "Quota query returned HTTP 302" {
 		t.Fatalf("redirect followed: %s", errText)
 	}
 	status.Store(200)
 	entry.attempted = time.Now().Add(-2 * time.Minute)
 	entry.quota.ObservedAt = time.Now().Add(-2 * time.Minute)
-	server.magpieCodexUsage(context.Background(), a, false)
+	server.probeMagpieUsage(context.Background(), a, false)
 	if calls.Load() != before+2 {
 		t.Fatal("expired cache did not fetch")
 	}
 	a.Quota = auth.QuotaState{ObservedAt: time.Now().Add(time.Second), Signals: map[string]string{"X-Codex-Primary-Used-Percent": "95"}}
-	newer, errText := server.magpieCodexUsage(context.Background(), a, false)
+	newer, errText := server.probeMagpieUsage(context.Background(), a, false)
 	if errText != "" || newer.Signals["X-Codex-Primary-Used-Percent"] != "95" {
 		t.Fatal("newer passive quota ignored")
 	}
@@ -156,7 +156,7 @@ func TestMagpieCodexUsageCache(t *testing.T) {
 	}
 	a.CredentialVersion++
 	before = calls.Load()
-	server.magpieCodexUsage(context.Background(), a, false)
+	server.probeMagpieUsage(context.Background(), a, false)
 	if calls.Load() != before+1 {
 		t.Fatal("credential replacement reused stale cache")
 	}

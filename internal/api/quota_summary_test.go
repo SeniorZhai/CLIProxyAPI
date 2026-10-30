@@ -269,6 +269,10 @@ func TestMagpieQuotaCards(t *testing.T) {
 		{ID: "codex-d", Provider: "codex", Status: auth.StatusActive, Attributes: map[string]string{"api_key": "secret-api-key"},
 			Quota: auth.QuotaState{ObservedAt: observed, Signals: map[string]string{"X-Codex-Primary-Used-Percent": "NaN", "X-Codex-Primary-Window-Minutes": "45"}}},
 		{ID: "xai-a", Provider: "xai", Status: auth.StatusActive, Metadata: map[string]any{"email": "xai@example.com"}},
+		{ID: "xai-b", Provider: "xai", Status: auth.StatusActive, Metadata: map[string]any{"email": "grok@example.com"},
+			Quota: auth.QuotaState{ObservedAt: observed, Signals: map[string]string{
+				"X-XAI-Window-Name": "7 days", "X-XAI-Used-Percent": "34", "X-XAI-Reset-At": "2026-11-04T03:38:26Z", "X-XAI-On-Demand-Used-Percent": "12.5",
+			}}},
 		{ID: "claude-a", Provider: "claude", Status: auth.StatusActive},
 	} {
 		if _, err := server.handlers.AuthManager.Register(context.Background(), entry); err != nil {
@@ -276,11 +280,12 @@ func TestMagpieQuotaCards(t *testing.T) {
 		}
 	}
 	cards, body := readMagpieQuotaCards(t, server, http.MethodGet, "/v1/magpie/quotas/cards")
-	if len(cards) != 5 {
+	if len(cards) != 6 {
 		t.Fatalf("cards = %s", body)
 	}
 	pro, plan, label := "pro", "plus", "label-user"
-	email, disabledEmail, xaiEmail := "user@example.com", "disabled@example.com", "xai@example.com"
+	email, disabledEmail, xaiEmail, grokEmail := "user@example.com", "disabled@example.com", "xai@example.com", "grok@example.com"
+	xaiReset := "2026-11-04T03:38:26Z"
 	asOf := "2026-10-29T12:00:00Z"
 	weeklyReset := time.Unix(1793275200, 0).UTC().Format(time.RFC3339)
 	shortReset := "2026-10-29T13:00:00Z"
@@ -296,6 +301,8 @@ func TestMagpieQuotaCards(t *testing.T) {
 		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", User: &disabledEmail, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "Account disabled"},
 		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", ReadAt: readAt, AsOf: &asOf, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
 		{Provider: "xai", Name: "xAI", Icon: "xai", Kind: "subscription", User: &xaiEmail, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
+		{Provider: "xai", Name: "xAI", Icon: "xai", Kind: "subscription", User: &grokEmail, ReadAt: readAt, AsOf: &asOf,
+			Windows: []magpieQuotaWindow{{Name: "7 days", Used: 34, ResetsAt: &xaiReset}, {Name: "On-demand", Used: 12.5, ResetsAt: &xaiReset}}},
 	}
 	if !reflect.DeepEqual(cards, want) {
 		t.Fatalf("cards = %s", body)
