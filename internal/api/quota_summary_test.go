@@ -294,12 +294,12 @@ func TestMagpieQuotaCards(t *testing.T) {
 		t.Fatalf("readAt = %q", readAt)
 	}
 	want := []magpieQuotaCard{
-		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", Plan: &pro, User: &email, ReadAt: readAt, AsOf: &asOf,
+		{Provider: "codex", Name: "Codex", Icon: "codex-color", Kind: "subscription", Plan: &pro, User: &email, ReadAt: readAt, AsOf: &asOf,
 			Windows: []magpieQuotaWindow{{Name: "7d", Used: 90, ResetsAt: &weeklyReset}, {Name: "5h", Used: 12.5, ResetsAt: &shortReset},
 				{Name: "Code review 7d", Used: 5, ResetsAt: &weeklyReset}, {Name: "GPT-Spark 5h", Used: 40}, {Name: "Bengalfox 1h", Used: 1}}},
-		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", Plan: &plan, User: &label, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
-		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", User: &disabledEmail, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "Account disabled"},
-		{Provider: "codex", Name: "Codex", Icon: "codex", Kind: "subscription", ReadAt: readAt, AsOf: &asOf, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
+		{Provider: "codex", Name: "Codex", Icon: "codex-color", Kind: "subscription", Plan: &plan, User: &label, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
+		{Provider: "codex", Name: "Codex", Icon: "codex-color", Kind: "subscription", User: &disabledEmail, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "Account disabled"},
+		{Provider: "codex", Name: "Codex", Icon: "codex-color", Kind: "subscription", ReadAt: readAt, AsOf: &asOf, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
 		{Provider: "xai", Name: "xAI", Icon: "xai", Kind: "subscription", User: &xaiEmail, ReadAt: readAt, Windows: []magpieQuotaWindow{}, Error: "No quota observation yet"},
 		{Provider: "xai", Name: "xAI", Icon: "xai", Kind: "subscription", User: &grokEmail, ReadAt: readAt, AsOf: &asOf,
 			Windows: []magpieQuotaWindow{{Name: "7 days", Used: 34, ResetsAt: &xaiReset}, {Name: "On-demand", Used: 12.5, ResetsAt: &xaiReset}}},

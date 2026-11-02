@@ -126,6 +126,7 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 	displayNames := map[string]string{"codex": "Codex", "xai": "xAI"}
 	readAt := time.Now().UTC().Format(time.RFC3339)
 	cards := make([]magpieQuotaCard, 0)
+	samples := make([]magpieQuotaSample, 0)
 	snapshots := s.handlers.AuthManager.List()
 	sort.Slice(snapshots, func(i, j int) bool {
 		if snapshots[i].Provider != snapshots[j].Provider {
@@ -145,7 +146,7 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 		card := magpieQuotaCard{
 			Provider: snapshot.Provider,
 			Name:     displayName,
-			Icon:     snapshot.Provider,
+			Icon:     magpieQuotaIcon(snapshot.Provider),
 			Kind:     "subscription",
 			Windows:  make([]magpieQuotaWindow, 0),
 			ReadAt:   readAt,
@@ -164,9 +165,7 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 		if user != "" {
 			card.User = &user
 		}
-		if observed, ok := quotaObservedAt(snapshot.Quota); ok {
-			card.AsOf = &observed
-		}
+		card.AsOf = magpieQuotaAsOf(snapshot.Quota)
 		if snapshot.Provider == "codex" {
 			// Each limit (base, code review, additional) is a signal group
 			// sharing the "<group>Primary-*" / "<group>Secondary-*" layout.
@@ -232,8 +231,12 @@ func (s *Server) magpieQuotaCards(c *gin.Context) {
 		case len(card.Windows) == 0:
 			card.Error = "No quota observation yet"
 		}
+		if card.Error == "" && len(card.Windows) > 0 {
+			samples = append(samples, magpieQuotaSample{Card: card, At: magpieQuotaSampleAt(snapshot.Quota, readAt)})
+		}
 		cards = append(cards, card)
 	}
+	s.noteMagpieQuotaHistory(samples)
 	c.Header("Cache-Control", "no-store")
 	c.JSON(http.StatusOK, gin.H{"data": cards})
 }
